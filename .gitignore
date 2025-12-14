@@ -2,3 +2,4 @@ bin
 .project
 .classpath
 src/module-info.java
+design/use_case_diagram.asta.lock
