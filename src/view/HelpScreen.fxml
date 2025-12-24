@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="controller.HelpScreenController" prefWidth="600" prefHeight="400">
+    <top>
+        <Label text="LUẬT CHƠI" BorderPane.alignment="CENTER">
+            <font><Font name="System Bold" size="24.0"/></font>
+            <padding><Insets top="10"/></padding>
+        </Label>
+    </top>
+    
+    <center>
+        <TextArea fx:id="txtContent" editable="false" wrapText="true" style="-fx-font-size: 14px;">
+            <BorderPane.margin><Insets top="10" right="20" bottom="10" left="20"/></BorderPane.margin>
+        </TextArea>
+    </center>
+    
+    <bottom>
+        <Button fx:id="btnBack" text="Quay lại" onAction="#handleBack" BorderPane.alignment="CENTER">
+             <BorderPane.margin><Insets bottom="20"/></BorderPane.margin>
+        </Button>
+    </bottom>
+</BorderPane>

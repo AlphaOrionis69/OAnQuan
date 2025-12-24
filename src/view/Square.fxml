@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.shape.Rectangle?>
+<?import javafx.scene.text.Font?>
+
+<StackPane fx:id="rootPane" 
+           xmlns="http://javafx.com/javafx/24" 
+           xmlns:fx="http://javafx.com/fxml/1" 
+           fx:controller="controller.SquareController">
+   
+   <Rectangle fx:id="bgShape" arcHeight="10.0" arcWidth="10.0" 
+              fill="#e0e0e0" height="80.0" stroke="BLACK" strokeType="INSIDE" width="80.0" />
+   
+   <Label fx:id="lblStones" text="0">
+      <font>
+         <Font name="System Bold" size="20.0" />
+      </font>
+   </Label>
+   
+</StackPane>

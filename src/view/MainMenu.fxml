@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="20.0" xmlns="http://javafx.com/javafx/24" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="controller.MainMenuController" prefWidth="600" prefHeight="400">
+    <padding>
+        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+    </padding>
+
+    <Label text="Ô ĂN QUAN">
+        <font>
+            <Font name="System Bold" size="36.0" />
+        </font>
+    </Label>
+
+    <Button fx:id="btnStart" text="Bắt đầu chơi" prefWidth="200" onAction="#handleStartGame">
+        <font>
+            <Font size="18.0" />
+        </font>
+    </Button>
+    
+    <Button fx:id="btnHelp" text="Hướng dẫn" prefWidth="200" onAction="#handleHelp">
+        <font>
+             <Font size="14.0" />
+        </font>
+    </Button>
+    
+    <Button fx:id="btnExit" text="Thoát" prefWidth="200" onAction="#handleExit">
+        <font>
+             <Font size="14.0" />
+        </font>
+    </Button>
+</VBox>
