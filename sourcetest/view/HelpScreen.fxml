@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #ecf0f1;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.HelpScreenController">
+   <top>
+      <VBox alignment="CENTER" prefHeight="80.0" style="-fx-background-color: #bdc3c7;" BorderPane.alignment="CENTER">
+         <children>
+            <Label text="How to Play O An Quan" textFill="#2c3e50">
+               <font>
+                  <Font name="System Bold" size="28.0" />
+               </font>
+            </Label>
+         </children>
+      </VBox>
+   </top>
+   
+   <center>
+      <VBox alignment="CENTER" spacing="10" BorderPane.alignment="CENTER">
+          <padding>
+             <Insets top="20" right="20" bottom="20" left="20"/>
+          </padding>
+          <children>
+              <TextArea editable="false" prefHeight="400.0" prefWidth="800.0" style="-fx-font-size: 16px; -fx-control-inner-background: #ffffff;" wrapText="true" text="OBJECTIVE:&#10;The game ends when the two Mandarin squares (the half-circles at the ends) are empty. The player with the highest score wins.&#10;&#10;SETUP:&#10;- 10 Citizen squares (5 on each side) start with 5 small stones each.&#10;- 2 Mandarin squares start with 1 big stone (value = 5 points) each.&#10;&#10;HOW TO PLAY:&#10;1. On your turn, choose a non-empty square on your side (bottom row for P1, top row for P2).&#10;2. Choose a direction (Clockwise or Counter-Clockwise).&#10;3. The hand picks up all stones from that square and distributes them one by one into the next squares.&#10;&#10;RULES:&#10;- If the last stone drops into a square with stones (Citizen), pick up all stones there and continue distributing.&#10;- If the last stone drops into an empty square, checking the next square:&#10;    a. If the next square has stones, you CAPTURE them (add to score). This can happen in a streak (Empty -&gt; Capture -&gt; Empty -&gt; Capture).&#10;    b. If the next square is empty, the turn stops (Lose turn).&#10;- If the last stone drops into a Mandarin square, the turn stops (cannot pick up from Mandarin).&#10;&#10;SCORING:&#10;- Small Stone = 1 point.&#10;- Big Stone = 5 points.">
+                 <VBox.margin>
+                    <Insets left="50.0" right="50.0" />
+                 </VBox.margin>
+              </TextArea>
+          </children>
+      </VBox>
+   </center>
+   
+   <bottom>
+      <VBox alignment="CENTER" prefHeight="80.0" style="-fx-background-color: #ecf0f1;" BorderPane.alignment="CENTER">
+         <children>
+            <Button mnemonicParsing="false" onAction="#handleBack" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;" text="Back to Menu">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Button>
+         </children>
+      </VBox>
+   </bottom>
+</BorderPane>
