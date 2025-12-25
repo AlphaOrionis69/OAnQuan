@@ -1,10 +1,16 @@
 package events;
 
 public class DropEvent extends GameEvent {
-	public int squareId;
-	public int amountDrop;
-	public DropEvent(int squareId, int amountDrop) {
+	private int squareId;
+	private int amountDropped;
+	public int getSquareId() {
+		return squareId;
+	}
+	public int getAmountDropped() {
+		return amountDropped;
+	}
+	public DropEvent(int squareId, int amountDropped) {
 		this.squareId = squareId;
-		this.amountDrop = amountDrop;
+		this.amountDropped = amountDropped;
 	}
 }

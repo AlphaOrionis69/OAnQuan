@@ -1,11 +1,19 @@
 package events;
 
 public class PickUpEvent extends GameEvent {
-	public int squareId;
-	public int amount;
+	private int squareId;
+	private int amountPickedUp;
 	
-	public PickUpEvent(int squareId, int amount) {
+	public int getSquareId() {
+		return squareId;
+	}
+
+	public int getAmountPickedUp() {
+		return amountPickedUp;
+	}
+
+	public PickUpEvent(int squareId, int amountPickedUp) {
 		this.squareId = squareId;
-		this.amount = amount;
+		this.amountPickedUp = amountPickedUp;
 	}
 }

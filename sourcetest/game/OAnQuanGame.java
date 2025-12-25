@@ -130,15 +130,15 @@ public class OAnQuanGame {
 				int nextIdx = board.getNextIdx(currentIdx, isClockwise);
 				Square nextSquare = board.getSquare(nextIdx);
 				
-				if (!nextSquare.isEmpty()) {
-					if (nextSquare instanceof MandarinSquare) {
-						events.add(new StopEvent(currentIdx));
-						return events;
-					} else {
-						hand = nextSquare.pickUpStones();
-						currentIdx = nextIdx;
-						events.add(new PickUpEvent(currentIdx, hand));
-					}
+				if (nextSquare instanceof MandarinSquare) {
+					events.add(new StopEvent(currentIdx));
+					return events;
+				}
+				if (!nextSquare.isEmpty()) {		
+					hand = nextSquare.pickUpStones();
+					currentIdx = nextIdx;
+					events.add(new PickUpEvent(currentIdx, hand));
+					
 				} else {
 					
 					int emptyIdx = nextIdx;
@@ -154,11 +154,12 @@ public class OAnQuanGame {
 							events.add(new CaptureEvent(targetIdx, captured, currentPlayer));
 							
 							int checkIdx = board.getNextIdx(targetIdx, isClockwise);
+							if (board.getSquare(checkIdx) instanceof MandarinSquare) break;
 							if (!board.getSquare(checkIdx).isEmpty()) break;
 							emptyIdx = checkIdx;
 						}
 					}
-					events.add(new StopEvent(currentIdx));
+					events.add(new StopEvent(board.getNextIdx(emptyIdx, !isClockwise)));
 					return events;
 				}
 			}

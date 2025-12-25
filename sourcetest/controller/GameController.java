@@ -188,12 +188,12 @@ public class GameController {
 
 		if (event instanceof PickUpEvent) {
 			PickUpEvent e = (PickUpEvent) event;
-			SquareView sv = squareViews.get(e.squareId);
+			SquareView sv = squareViews.get(e.getSquareId());
 			moveHandTo(sv);
 			
 			PauseTransition afterMovingHand = new PauseTransition(Duration.millis(DELAY_AFTER_MOVING_HAND));
 			afterMovingHand.setOnFinished(ev -> {
-				handLabel.setText(String.valueOf(Integer.parseInt(handLabel.getText()) + e.amount));
+				handLabel.setText(String.valueOf(Integer.parseInt(handLabel.getText()) + e.getAmountPickedUp()));
 				sv.clearVisualStones();
 			});
 			
@@ -206,13 +206,13 @@ public class GameController {
 			
 		} else if (event instanceof DropEvent) {
 			DropEvent e = (DropEvent) event;
-			SquareView sv = squareViews.get(e.squareId);
+			SquareView sv = squareViews.get(e.getSquareId());
 			moveHandTo(sv);
 			
 			PauseTransition afterMovingHand = new PauseTransition(Duration.millis(DELAY_AFTER_MOVING_HAND));
 			afterMovingHand.setOnFinished(ev -> {
 				int hand = Integer.parseInt(handLabel.getText());
-				if (hand > 0) handLabel.setText(String.valueOf(hand - e.amountDrop));
+				if (hand > 0) handLabel.setText(String.valueOf(hand - e.getAmountDropped()));
 				sv.addVisualStone();
 			});
 			
@@ -225,7 +225,7 @@ public class GameController {
 
 		} else if (event instanceof CaptureEvent) {
 			CaptureEvent e = (CaptureEvent) event;
-			SquareView sv = squareViews.get(e.squareId);
+			SquareView sv = squareViews.get(e.getSquareId());
 			
 			moveHandTo(sv);		 
 			sv.highlight(true);
@@ -234,7 +234,7 @@ public class GameController {
 			afterMovingHand.setOnFinished(ev -> {
 				sv.clearVisualStones();
 				sv.highlight(false);
-				updateScore(e.amount, e.player);
+				updateScore(e.getAmountCaptured(), e.getPlayer());
 			});
 			
 			PauseTransition afterUpdatingOneEvent = new PauseTransition(Duration.millis(DELAY_AFTER_CAPTURING_STONES));
@@ -247,19 +247,19 @@ public class GameController {
 		} else if (event instanceof DistributeEvent) {
 			DistributeEvent e = (DistributeEvent) event;
 			msgTitle.setText("Distribution");
-			msgContent.setText(e.player.getName() + " distributes stones.");
+			msgContent.setText(e.getPlayer().getName() + " distributes stones.");
 			msgOverlay.setVisible(true);
 			
 			PauseTransition pt = new PauseTransition(Duration.millis(DELAY_BEFORE_DISTRIBUTING_STONES));
 			pt.setOnFinished(ev -> {
 				msgOverlay.setVisible(false);
-				int start = (e.player.getSide() == 0) ? 0 : 6;
-				int end = (e.player.getSide() == 0) ? 4 : 10;
+				int start = (e.getPlayer().getSide() == 0) ? 0 : 6;
+				int end = (e.getPlayer().getSide() == 0) ? 4 : 10;
 				for (int i = start; i <= end; i++) {
 					squareViews.get(i).addVisualStone();
 				}
-				updateScore(-e.amountLent, e.player);
-				updateScore(-(5*e.amountPerSquare - e.amountLent), e.player == game.getPlayer1() ? game.getPlayer1() : game.getPlayer2());
+				updateScore(-e.getAmountLent(), e.getPlayer());
+				updateScore(-(5*e.getAmountPerSquare() - e.getAmountLent()), e.getPlayer() == game.getPlayer1() ? game.getPlayer1() : game.getPlayer2());
 				playNextEvent();
 			});
 			pt.play();
@@ -267,7 +267,7 @@ public class GameController {
 
 		} else if (event instanceof SwitchTurnEvent) {
 			SwitchTurnEvent e = (SwitchTurnEvent) event;
-			updateTurn(e.newPlayer);
+			updateTurn(e.getNewPlayer());
 			PauseTransition pt = new PauseTransition(Duration.millis(DELAY_AFTER_SWITCHING_TURN));
 			pt.setOnFinished(ev -> playNextEvent());
 			pt.play();
