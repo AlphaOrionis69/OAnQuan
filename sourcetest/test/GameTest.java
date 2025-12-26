@@ -41,7 +41,7 @@ public class GameTest {
 				}
 				catch (Exception e) {
 					e.printStackTrace();
-					while (s.hasNext()) System.out.println("Trash: " + s.nextLine()); // read trash
+					while (!s.hasNextInt()) System.out.println("Trash: " + s.next()); // read trash
 				}
 				
 			}

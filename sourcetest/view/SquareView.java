@@ -11,6 +11,7 @@ import java.util.Random;
 
 public abstract class SquareView extends Pane {
 	private Square square;
+	protected int currentValue = 0;
 	protected Label countLabel;
 	protected Pane stoneLayer; 
 	protected Pane backgroundLayer; 
@@ -44,13 +45,13 @@ public abstract class SquareView extends Pane {
 		this.getChildren().addAll(backgroundLayer, stoneLayer, countLabel);
 		
 		drawBackground();
-		updateVisuals();
+		syncSquare();
 	}
 	
 	public Square getSquare() { return square; }
 	
 	
-	public void updateVisuals() {
+	public void syncSquare() {
 		stoneLayer.getChildren().clear();
 		int small = square.getSmallStones();
 		int big = square.getBigStones();
@@ -61,20 +62,19 @@ public abstract class SquareView extends Pane {
 		for (int i = 0; i < small; i++) {
 			drawStones(false);
 		}
-		
+		currentValue = square.calculatePoints();
 		countLabel.setText(String.valueOf(square.calculatePoints()));
 	}
 	
 	public void addVisualStone() {
-		drawStones(false);
-		try {
-			int current = Integer.parseInt(countLabel.getText());
-			countLabel.setText(String.valueOf(current + 1));
-		} catch (Exception e) {}
+		drawStones(false);		
+		countLabel.setText(String.valueOf(currentValue + 1));
+		++currentValue;		
 	}
 	
 	public void clearVisualStones() {
 		stoneLayer.getChildren().clear();
+		currentValue = 0;
 		countLabel.setText("0");
 	}
 	

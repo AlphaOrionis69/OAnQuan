@@ -38,11 +38,13 @@ public class GameController {
 	@FXML private AnchorPane rootPane;
 	@FXML private StackPane boardPane;
 	@FXML private Label lblP1Score, lblP2Score, lblTurn;
+	private int p1Score = 0, p2Score = 0; // helper
 	
 	// hand
 	@FXML private StackPane handVisual;
 	@FXML private Label handLabel;
 	@FXML private Circle hand;
+	private int handCount = 0; // helper
 	
 	// overlay message
 	@FXML private StackPane msgOverlay;
@@ -85,7 +87,6 @@ public class GameController {
 	
 	private void redrawBoard() {
 		boardView.init(game.getBoard().getSquares());
-			
 		Map<Integer, SquareView> views = boardView.getAllViews();
 		for (Map.Entry<Integer, SquareView> entry : views.entrySet()) {
 			SquareView sv = entry.getValue();
@@ -178,6 +179,7 @@ public class GameController {
 			isAnimating = false;
 			handVisual.setVisible(false);
 			handLabel.setText("0");
+			handCount = 0;
 			//syncBoard(); syncScore(); syncTurn();
 			checkGameOver();
 			return;
@@ -193,7 +195,8 @@ public class GameController {
 			
 			PauseTransition afterMovingHand = new PauseTransition(Duration.millis(DELAY_AFTER_MOVING_HAND));
 			afterMovingHand.setOnFinished(ev -> {
-				handLabel.setText(String.valueOf(Integer.parseInt(handLabel.getText()) + e.getAmountPickedUp()));
+				handLabel.setText(String.valueOf(handCount + e.getAmountPickedUp()));
+				handCount += e.getAmountPickedUp();
 				sv.clearVisualStones();
 			});
 			
@@ -211,8 +214,10 @@ public class GameController {
 			
 			PauseTransition afterMovingHand = new PauseTransition(Duration.millis(DELAY_AFTER_MOVING_HAND));
 			afterMovingHand.setOnFinished(ev -> {
-				int hand = Integer.parseInt(handLabel.getText());
-				if (hand > 0) handLabel.setText(String.valueOf(hand - e.getAmountDropped()));
+				if (handCount > 0) {
+					handLabel.setText(String.valueOf(handCount - e.getAmountDropped()));
+					handCount -= e.getAmountDropped();
+				}
 				sv.addVisualStone();
 			});
 			
@@ -259,7 +264,10 @@ public class GameController {
 					squareViews.get(i).addVisualStone();
 				}
 				updateScore(-e.getAmountLent(), e.getPlayer());
-				updateScore(-(5*e.getAmountPerSquare() - e.getAmountLent()), e.getPlayer() == game.getPlayer1() ? game.getPlayer1() : game.getPlayer2());
+				
+				Player otherPlayer = e.getPlayer() == game.getPlayer1() ? game.getPlayer1() : game.getPlayer2();
+				updateScore(-(5*e.getAmountPerSquare() - e.getAmountLent()), otherPlayer);
+				
 				playNextEvent();
 			});
 			pt.play();
@@ -274,8 +282,8 @@ public class GameController {
 			return;
 
 		} else if (event instanceof StopEvent) {
-			handVisual.setVisible(false);
-			handLabel.setText("0");
+//			handVisual.setVisible(false);
+//			handLabel.setText("0");
 			playNextEvent();
 			return;
 		}
@@ -300,7 +308,7 @@ public class GameController {
 				syncBoard(); syncScore(); syncTurn();
 			});
 			
-			PauseTransition afterCalculatingFinalScore = new PauseTransition(Duration.millis(200));
+			PauseTransition afterCalculatingFinalScore = new PauseTransition(Duration.millis(500));
 			afterCalculatingFinalScore.setOnFinished(ev -> {
 				msgTitle.setText("Game Over");
 				msgContent.setText("Winner: " + (game.getPlayer1().getScore() > game.getPlayer2().getScore() ? "Player 1" : "Player 2"));
@@ -313,29 +321,29 @@ public class GameController {
 	
 	private void syncBoard() {
 		for (SquareView sv : squareViews.values()) {
-			sv.updateVisuals();
+			sv.syncSquare();
 		}
 		
 	}
 	private void syncScore() {
 		lblP1Score.setText("P1: " + game.getPlayer1().getScore());
+		p1Score = game.getPlayer1().getScore();
+		
 		lblP2Score.setText("P2: " + game.getPlayer2().getScore());
+		p2Score = game.getPlayer2().getScore();
 	}
 	private void syncTurn() {
 		lblTurn.setText("Turn: " + game.getCurrentPlayer().getName());
 	}
 	
-	private void updateScore(int amount, Player player) {
-		try {
-			if (player == game.getPlayer1()) {
-				lblP1Score.setText("P1: " + (Integer.parseInt(lblP1Score.getText().substring(4)) + amount));
-			}
-			else {
-				lblP2Score.setText("P2: " + (Integer.parseInt(lblP2Score.getText().substring(4)) + amount));
-			}
+	private void updateScore(int amount, Player player) {	
+		if (player == game.getPlayer1()) {
+			lblP1Score.setText("P1: " + (p1Score + amount));
+			p1Score += amount;
 		}
-		catch (Exception e) {
-			e.printStackTrace();
+		else {
+			lblP2Score.setText("P2: " + (p2Score + amount));
+			p2Score += amount;
 		}
 	}
 	private void updateTurn(Player player) {
