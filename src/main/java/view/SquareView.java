@@ -1,6 +1,8 @@
 package view;
 
 import model.board.Square;
+import javafx.geometry.Point2D;
+import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -11,16 +13,18 @@ import java.util.Random;
 
 public abstract class SquareView extends Pane {
 	private Square square;
-	protected int currentValue = 0;
+	private int currentValue = 0;
 	protected Label countLabel;
 	protected Pane stoneLayer; 
 	protected Pane backgroundLayer; 
 	protected Shape backgroundShape;
 	public static final double CELL_WIDTH = 90.0;
 	public static final double CELL_HEIGHT = 90.0;
-	public static final double CONTAINER_SIZE = 60.0;
+	public static final double CONTAINER_SIZE = 65.0;
+	public static final double BIG_STONE_RADIUS = 12.0;
+	public static final double SMALL_STONE_RADIUS = 5.0;
 	private Random random = new Random();
-	
+	private static final int MAX_REROLL = 10;
 	public SquareView(Square square) {
 		this.square = square;
 		this.setPrefSize(CELL_WIDTH, CELL_HEIGHT);
@@ -33,8 +37,8 @@ public abstract class SquareView extends Pane {
 		
 		stoneLayer = new Pane();
 		stoneLayer.setPrefSize(CONTAINER_SIZE, CONTAINER_SIZE);
-		stoneLayer.setLayoutX((CELL_WIDTH - CONTAINER_SIZE) / 2);
-		stoneLayer.setLayoutY((CELL_HEIGHT - CONTAINER_SIZE) / 2);
+		stoneLayer.setLayoutX((this.getPrefWidth() - stoneLayer.getPrefWidth()) / 2);
+		stoneLayer.setLayoutY((this.getPrefHeight() - stoneLayer.getPrefHeight()) / 2);
 		stoneLayer.setMouseTransparent(true);
 		
 		
@@ -79,19 +83,38 @@ public abstract class SquareView extends Pane {
 	}
 	
 	private void drawStones(boolean isBig) {
-		double radius = isBig ? 12 : 5;
-		Circle c = new Circle(radius);
-		c.setFill(isBig ? Color.GOLD : Color.WHITE);
-		c.setStroke(Color.BLACK);
+		double radius = isBig ? BIG_STONE_RADIUS : SMALL_STONE_RADIUS;
 		
-		double maxPos = stoneLayer.getPrefWidth() - (radius * 2);
-		double x = (random.nextDouble() * maxPos) + radius;
-		double y = (random.nextDouble() * maxPos) + radius;
 		
-		c.setLayoutX(x);
-		c.setLayoutY(y);
+		for (int turn = 0; turn <= MAX_REROLL; turn++) {
+			double maxPos = stoneLayer.getPrefWidth() - (radius * 2);
+			double x = (random.nextDouble() * maxPos) + radius;
+			double y = (random.nextDouble() * maxPos) + radius;
+			
+			boolean ok = true;
+			for (Node stone : stoneLayer.getChildren()) {
+				if (stone instanceof Circle) {
+					Circle circle = (Circle)stone;
+					Point2D p = new Point2D(circle.getLayoutX() + circle.getRadius(), circle.getLayoutY() + circle.getRadius());
+					if (p.distance(x, y) < 10) {
+						ok = false; break;
+					}
+				}
+			}
+			if (ok || turn == MAX_REROLL) {
+				Circle c = new Circle(radius);
+				c.setFill(isBig ? Color.GOLD : Color.WHITE);
+				c.setStroke(Color.BLACK);
+				c.setLayoutX(x);
+				c.setLayoutY(y);
+				
+				stoneLayer.getChildren().add(c);
+				break;
+			}	
+		}
 		
-		stoneLayer.getChildren().add(c);
+		
+		
 	}
 	
 	public void highlight(boolean on) {

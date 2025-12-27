@@ -12,7 +12,9 @@ import javafx.animation.PauseTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
 import javafx.fxml.FXML;
+import javafx.geometry.Bounds;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -32,6 +34,7 @@ import view.Arrow;
 import view.BoardView;
 import view.CitizenSquareView;
 import view.DirectionControlView;
+import view.HandView;
 import view.SquareView;
 
 public class GameController {
@@ -41,23 +44,18 @@ public class GameController {
 	private int p1Score = 0, p2Score = 0; // helper
 	
 	// hand
-	@FXML private StackPane handVisual;
-	@FXML private Label handLabel;
-	@FXML private Circle hand;
-	private int handCount = 0; // helper
-	
+	private HandView handView;
 	// overlay message
 	@FXML private StackPane msgOverlay;
 	@FXML private Label msgTitle, msgContent;
 	
 	private BoardView boardView;
+	private Map<Integer, SquareView> squareViews;
 	// arrows
-	private Arrow arrowCW, arrowCCW;
-	//private DirectionControlView arrowView;
+	private DirectionControlView arrowView;
 	
 	private OAnQuanGame game;
 	
-	private Map<Integer, SquareView> squareViews;
 	private int selectedSquareId = -1;
 	private boolean isAnimating = false;
 	
@@ -67,50 +65,79 @@ public class GameController {
 	private final double DELAY_AFTER_SWITCHING_TURN = 100;
 	private final double DELAY_AFTER_CAPTURING_STONES = 100;
 	private final double DELAY_BEFORE_DISTRIBUTING_STONES = 1500;
+	
 	private Queue<GameEvent> eventQueue = new LinkedList<>();
 	
 	@FXML
 	private void initialize() {
 		game = new OAnQuanGame();
 		game.startNewGame("Player 1", "Player 2");
-		
 		boardView = new BoardView();
 		squareViews = boardView.getAllViews();
 		boardPane.getChildren().add(boardView);
-		boardView.setAlignment(Pos.CENTER);
-		redrawBoard();
+		//boardView.setAlignment(Pos.CENTER);
+		drawBoard();
 		createDirectionArrows();
-		
+		createHand();
+		rootPane.layoutBoundsProperty().addListener((obs, o, n) -> {
+			Platform.runLater(() -> {
+				arrowView.updateArrowPosition();
+				handView.updateHandPosition();
+			});
+		});
+		if (rootPane.getChildren().contains(msgOverlay)) {
+			rootPane.getChildren().remove(msgOverlay);
+			rootPane.getChildren().add(msgOverlay);
+		}
 		syncScore(); syncTurn(); syncBoard();   
 	}
 
 	
-	private void redrawBoard() {
-		boardView.init(game.getBoard().getSquares());
-		Map<Integer, SquareView> views = boardView.getAllViews();
-		for (Map.Entry<Integer, SquareView> entry : views.entrySet()) {
+	private void drawBoard() {
+		boardView.init(game.getBoard().getSquares());	
+		for (Map.Entry<Integer, SquareView> entry : squareViews.entrySet()) {
 			SquareView sv = entry.getValue();
-			Square s = game.getBoard().getSquare(entry.getKey());
-			sv.setOnMouseClicked(e -> handleSquareClick(s, sv));
+			if (sv instanceof CitizenSquareView) {
+				sv.setOnMouseClicked(e -> handleSquareClick((SquareView)e.getSource()));
+				sv.setOnMouseEntered(e -> handleSquareEnter((SquareView)e.getSource()));
+				sv.setOnMouseExited(e -> handleSquareExit((SquareView)e.getSource()));
+			}
 		}
 	}
 
 	private void createDirectionArrows() {
-		arrowCCW = new Arrow();
-
-		arrowCCW.setVisible(false);
-		arrowCCW.setOnMouseClicked(e -> processMove(false));
+		arrowView = new DirectionControlView();
+		arrowView.getArrowCCW().setOnMouseClicked(e -> processMove(false));
+		arrowView.getArrowCW().setOnMouseClicked(e -> processMove(true));
 		
-		arrowCW = new Arrow();
-		
-		arrowCW.setVisible(false);
-		arrowCW.setOnMouseClicked(e -> processMove(true));
-		
-		rootPane.getChildren().addAll(arrowCCW, arrowCW);
+		rootPane.getChildren().addAll(arrowView.getArrowCCW(), arrowView.getArrowCW());
 	}
-			
-	private void handleSquareClick(Square s, SquareView sv) {
+	
+	private void createHand() {
+		handView = new HandView();
+		rootPane.getChildren().add(handView);
+	}
+	private void handleSquareEnter(SquareView sv) {
 		if (isAnimating || game.isGameOver()) return;
+		Square s = sv.getSquare();
+		if (!game.getRule().isValidMove(game.getBoard(), s.getId(), game.getCurrentPlayer())) {
+			return;
+		}
+		sv.highlight(true);
+	}
+	private void handleSquareExit(SquareView sv) {
+		if (isAnimating || game.isGameOver()) return;
+		Square s = sv.getSquare();
+		if (!game.getRule().isValidMove(game.getBoard(), s.getId(), game.getCurrentPlayer())) {
+			return;
+		}
+		if (s.getId() != selectedSquareId) {
+			sv.highlight(false);
+		}
+	}
+	private void handleSquareClick(SquareView sv) {
+		if (isAnimating || game.isGameOver()) return;
+		Square s = sv.getSquare();
 		// choose the same square
 		if (selectedSquareId == s.getId()) {
 			deselect();
@@ -123,40 +150,18 @@ public class GameController {
 
 		deselect(); 
 		selectedSquareId = s.getId();
+		
 		sv.highlight(true);
-		
-		Point2D p = sv.localToScene(sv.getWidth()/2, sv.getHeight()/2);
-		if (s.getId() >= 6 && s.getId() <= 10) {
-			arrowCW.setLayoutX(p.getX() - CitizenSquareView.CELL_WIDTH/2 - arrowCW.getSize()/2);
-			arrowCW.setLayoutY(p.getY());
-			arrowCW.setRotate(-90); 
- 
-			arrowCCW.setLayoutX(p.getX() + CitizenSquareView.CELL_WIDTH/2 + arrowCW.getSize()/2);
-			arrowCCW.setLayoutY(p.getY());
-			arrowCCW.setRotate(90);
-			
-		}
-		else {
-			arrowCCW.setLayoutX(p.getX() - CitizenSquareView.CELL_WIDTH/2 - arrowCW.getSize()/2);
-			arrowCCW.setLayoutY(p.getY());
-			arrowCCW.setRotate(-90);
-	   
-			arrowCW.setLayoutX(p.getX() + CitizenSquareView.CELL_WIDTH/2 + arrowCW.getSize()/2);
-			arrowCW.setLayoutY(p.getY());
-			arrowCW.setRotate(90);
-		}
-		
-		arrowCCW.setVisible(true);
-		arrowCW.setVisible(true);
+		arrowView.attachTo(sv);
+		arrowView.show();
 	}
-	
 	private void deselect() {
 		if (selectedSquareId != -1) {
 			squareViews.get(selectedSquareId).highlight(false);
 			selectedSquareId = -1;
 		}
-		arrowCCW.setVisible(false);
-		arrowCW.setVisible(false);
+		arrowView.detach();
+		arrowView.hide();
 	}
 
 	private void processMove(boolean clockwise) {
@@ -177,26 +182,27 @@ public class GameController {
 	private void playNextEvent() {
 		if (eventQueue.isEmpty()) {
 			isAnimating = false;
-			handVisual.setVisible(false);
-			handLabel.setText("0");
-			handCount = 0;
+			
+			handView.reset();
+			handView.hide();
+			
 			//syncBoard(); syncScore(); syncTurn();
 			checkGameOver();
 			return;
 		}
-		handVisual.setVisible(true);
+
+		handView.show();
 		isAnimating = true;
 		GameEvent event = eventQueue.poll();
 
 		if (event instanceof PickUpEvent) {
 			PickUpEvent e = (PickUpEvent) event;
 			SquareView sv = squareViews.get(e.getSquareId());
-			moveHandTo(sv);
-			
+
+			handView.moveHandTo(sv);
 			PauseTransition afterMovingHand = new PauseTransition(Duration.millis(DELAY_AFTER_MOVING_HAND));
 			afterMovingHand.setOnFinished(ev -> {
-				handLabel.setText(String.valueOf(handCount + e.getAmountPickedUp()));
-				handCount += e.getAmountPickedUp();
+				handView.addAmount(e.getAmountPickedUp());
 				sv.clearVisualStones();
 			});
 			
@@ -210,14 +216,11 @@ public class GameController {
 		} else if (event instanceof DropEvent) {
 			DropEvent e = (DropEvent) event;
 			SquareView sv = squareViews.get(e.getSquareId());
-			moveHandTo(sv);
-			
+
+			handView.moveHandTo(sv);
 			PauseTransition afterMovingHand = new PauseTransition(Duration.millis(DELAY_AFTER_MOVING_HAND));
 			afterMovingHand.setOnFinished(ev -> {
-				if (handCount > 0) {
-					handLabel.setText(String.valueOf(handCount - e.getAmountDropped()));
-					handCount -= e.getAmountDropped();
-				}
+				handView.decreaseAmount(e.getAmountDropped());
 				sv.addVisualStone();
 			});
 			
@@ -232,7 +235,7 @@ public class GameController {
 			CaptureEvent e = (CaptureEvent) event;
 			SquareView sv = squareViews.get(e.getSquareId());
 			
-			moveHandTo(sv);		 
+			handView.moveHandTo(sv);
 			sv.highlight(true);
 			
 			PauseTransition afterMovingHand = new PauseTransition(Duration.millis(DELAY_AFTER_MOVING_HAND));
@@ -282,22 +285,13 @@ public class GameController {
 			return;
 
 		} else if (event instanceof StopEvent) {
-//			handVisual.setVisible(false);
-//			handLabel.setText("0");
+			// maybe add something more here
 			playNextEvent();
 			return;
 		}
 
 		// unknown one??
 		playNextEvent();
-	}
-	
-	private void moveHandTo(SquareView sv) {
-		Point2D p = sv.localToScene(sv.getWidth()/2, sv.getHeight()/2);
-		double targetX = p.getX() - hand.getRadius(); 
-		double targetY = p.getY() - hand.getRadius();
-		handVisual.setLayoutX(targetX);
-		handVisual.setLayoutY(targetY);
 	}
 	
 	private void checkGameOver() {

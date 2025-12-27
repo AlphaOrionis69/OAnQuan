@@ -11,13 +11,13 @@
     
     <Label text="Ô Ăn Quan" style="-fx-font-size: 30px; -fx-font-weight: bold;"/>
     
-    <Button fx:id="btnStart" text="Start Game" minWidth="200" onAction="#handleStart">
+    <Button text="Start Game" minWidth="200" onAction="#handleStart" style="-fx-cursor: hand">
         <font><Font size="16.0" /></font>
     </Button>
-    <Button fx:id="btnHelp" text="Help" minWidth="200" onAction="#handleHelp">
+    <Button text="Help" minWidth="200" onAction="#handleHelp" style="-fx-cursor: hand">
         <font><Font size="16.0" /></font>
     </Button>
-    <Button fx:id="btnExit" text="Exit" minWidth="200" onAction="#handleExit">
+    <Button text="Exit" minWidth="200" onAction="#handleExit" style="-fx-cursor: hand">
         <font><Font size="16.0" /></font>
     </Button>
 </VBox>

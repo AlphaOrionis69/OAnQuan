@@ -12,13 +12,11 @@ public class MandarinSquareView extends SquareView {
 		super(square);
 		double doubleHeight = CELL_HEIGHT * 2;
 		this.setPrefHeight(doubleHeight);
-		backgroundLayer.setPrefHeight(doubleHeight);
-		
-		
+		backgroundLayer.setPrefHeight(doubleHeight);	
 		stoneLayer.setLayoutY((doubleHeight - stoneLayer.getPrefHeight()) / 2);
 		
 		if (square.getId() == 11) { 
-			countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.85)); 
+			countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.8)); 
 			countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.025)); 
 		} else { 
 			countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.05)); 
@@ -32,22 +30,23 @@ public class MandarinSquareView extends SquareView {
 		double h = CELL_HEIGHT * 2;
 		
 		backgroundShape = new Arc();
-		((Arc)backgroundShape).setRadiusX(CELL_WIDTH + 2);
-		((Arc)backgroundShape).setRadiusY(h / 2 + 2);
-		((Arc)backgroundShape).setType(ArcType.CHORD);
-		((Arc)backgroundShape).setFill(Color.BURLYWOOD);
-		((Arc)backgroundShape).setStroke(Color.BLACK);
+		Arc holder = (Arc)backgroundShape;
+		holder.setRadiusX(CELL_WIDTH + 2);
+		holder.setRadiusY(h / 2 + 2);
+		holder.setType(ArcType.CHORD);
+		holder.setFill(Color.BURLYWOOD);
+		holder.setStroke(Color.BLACK);
 		
 		if (getSquare().getId() == 11) { 
-			((Arc)backgroundShape).setCenterX(CELL_WIDTH); 
-			((Arc)backgroundShape).setCenterY(h / 2 + 1);
-			((Arc)backgroundShape).setStartAngle(90);
-			((Arc)backgroundShape).setLength(180);
+			holder.setCenterX(CELL_WIDTH); 
+			holder.setCenterY(h / 2 + 1);
+			holder.setStartAngle(90);
+			holder.setLength(180);
 		} else { 
-			((Arc)backgroundShape).setCenterX(0);
-			((Arc)backgroundShape).setCenterY(h / 2 + 1);
-			((Arc)backgroundShape).setStartAngle(270);
-			((Arc)backgroundShape).setLength(180);
+			holder.setCenterX(0);
+			holder.setCenterY(h / 2 + 1);
+			holder.setStartAngle(270);
+			holder.setLength(180);
 		}
 		
 		backgroundLayer.getChildren().add(backgroundShape);
