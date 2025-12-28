@@ -72,10 +72,20 @@ public class OAnQuanGame {
 				lending = true;
 				if (currentPlayer == player1) {
 					penalty -= amountLent;
-					player2.decreaseScore(amountLent);
+					if (player2.getScore() < amountLent) {
+						// special case: no one can help continue the game
+						events.add(new StopEvent(-1));
+						isGameOver = true;
+						return events;
+					}
+					else player2.decreaseScore(amountLent);
 				} else {
 					penalty += amountLent;
-					player1.decreaseScore(amountLent);
+					if (player1.getScore() < amountLent) {
+						events.add(new StopEvent(-1));
+						return events;
+					}
+					else player1.decreaseScore(amountLent);
 				}
 				currentPlayer.setScore(0);
 			}

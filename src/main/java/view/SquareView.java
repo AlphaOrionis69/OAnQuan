@@ -18,18 +18,16 @@ public abstract class SquareView extends Pane {
 	protected Pane stoneLayer; 
 	protected Pane backgroundLayer; 
 	protected Shape backgroundShape;
-	public static final double CELL_WIDTH = 90.0;
-	public static final double CELL_HEIGHT = 90.0;
-	public static final double CONTAINER_SIZE = 65.0;
+	public static final double CELL_WIDTH = 120.0;
+	public static final double CELL_HEIGHT = 120.0;
+	public static final double CONTAINER_SIZE = 90.0;
 	public static final double BIG_STONE_RADIUS = 12.0;
 	public static final double SMALL_STONE_RADIUS = 5.0;
 	private Random random = new Random();
-	private static final int MAX_REROLL = 10;
+	private static final int MAX_REROLL = 30;
 	public SquareView(Square square) {
 		this.square = square;
 		this.setPrefSize(CELL_WIDTH, CELL_HEIGHT);
-		
-		this.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
 		
 		backgroundLayer = new Pane();
 		backgroundLayer.setPrefSize(CELL_WIDTH, CELL_HEIGHT);
@@ -46,9 +44,18 @@ public abstract class SquareView extends Pane {
 		countLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 14px; -fx-effect: dropshadow(one-pass-box, black, 2, 0, 0, 0);");
 		countLabel.setMouseTransparent(true);
 		
+		try {
+			this.getStylesheets().add(getClass().getResource("/css/square_style.css").toExternalForm());
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.setStyle("-fx-border-width: 0; -fx-background-color: transparent;");
+			drawBackground();
+		}
+		
 		this.getChildren().addAll(backgroundLayer, stoneLayer, countLabel);
 		
-		drawBackground();
+		
 		syncSquare();
 	}
 	
@@ -96,15 +103,25 @@ public abstract class SquareView extends Pane {
 				if (stone instanceof Circle) {
 					Circle circle = (Circle)stone;
 					Point2D p = new Point2D(circle.getLayoutX() + circle.getRadius(), circle.getLayoutY() + circle.getRadius());
-					if (p.distance(x, y) < 10) {
+					if (p.distance(x, y) < circle.getRadius() + radius - 2) {
 						ok = false; break;
 					}
 				}
 			}
 			if (ok || turn == MAX_REROLL) {
 				Circle c = new Circle(radius);
-				c.setFill(isBig ? Color.GOLD : Color.WHITE);
-				c.setStroke(Color.BLACK);
+				try {
+					if (isBig) {
+						c.getStyleClass().add("big-stone-shape");
+					}
+					else {
+						c.getStyleClass().add("stone-shape");
+					}
+				}
+				catch (Exception e) {
+					c.setFill(isBig ? Color.GOLD : Color.WHITE);
+					c.setStroke(Color.BLACK);
+				}
 				c.setLayoutX(x);
 				c.setLayoutY(y);
 				
@@ -119,9 +136,25 @@ public abstract class SquareView extends Pane {
 	
 	public void highlight(boolean on) {
 		if (on) {
-			backgroundShape.setStroke(Color.YELLOW);
+			try {
+				if (!this.getStyleClass().contains("square-hover")) {
+					this.getStyleClass().add("square-hover");
+				}
+			}
+			catch (Exception e) {
+				backgroundShape.setStroke(Color.YELLOW);
+			}
+			
 		} else {
-			backgroundShape.setStroke(Color.BLACK);
+			try {
+				if (this.getStyleClass().contains("square-hover")) {
+					this.getStyleClass().remove("square-hover");
+				}
+			}
+			catch (Exception e) {
+				backgroundShape.setStroke(Color.BLACK);
+			}
+			
 		}
 	}
 	protected abstract void drawBackground();

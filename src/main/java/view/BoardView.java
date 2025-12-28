@@ -15,12 +15,12 @@ import java.util.Map;
 
 public class BoardView extends HBox {
 	private Map<Integer, SquareView> squareViews = new HashMap<>();
-	
+	private int spacing = 4;
 	public BoardView() {
 		this.setAlignment(Pos.CENTER);
 		this.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 		this.setStyle("-fx-border-width: 0;");
-		this.setSpacing(4);
+		this.setSpacing(spacing);
 	}
 	
 	public void init(List<Square> squares) {
@@ -40,12 +40,12 @@ public class BoardView extends HBox {
 		
 		SquareView leftMan = squareViews.get(11);
 		
-		VBox centerGrid = new VBox(); centerGrid.setSpacing(4);		
-		HBox topRow = new HBox(); topRow.setSpacing(4);
+		VBox centerGrid = new VBox(); centerGrid.setSpacing(spacing);		
+		HBox topRow = new HBox(); topRow.setSpacing(spacing);
 		for (int i = 10; i >= 6; i--) {
 			topRow.getChildren().add(squareViews.get(i));
 		}		
-		HBox bottomRow = new HBox(); bottomRow.setSpacing(4);
+		HBox bottomRow = new HBox(); bottomRow.setSpacing(spacing);
 		for (int i = 0; i <= 4; i++) {
 			bottomRow.getChildren().add(squareViews.get(i));
 		}

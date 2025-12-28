@@ -9,7 +9,14 @@ public class CitizenSquareView extends SquareView {
 	
 	public CitizenSquareView(Square square) {
 		super(square);
-		this.setStyle("-fx-border-width: 0; -fx-background-color: transparent; -fx-cursor: hand;");
+		try {
+			this.getStyleClass().add("citizen-square");
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+			this.setStyle("-fx-border-width: 0; -fx-background-color: transparent; -fx-cursor: hand;");
+		}
+		
 		countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.05));
 		countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.75));
 	}

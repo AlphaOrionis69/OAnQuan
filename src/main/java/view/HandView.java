@@ -11,7 +11,7 @@ public class HandView extends StackPane {
 	private Circle handVisual;
 	private int handCount = 0;
 	private SquareView target = null;
-	public static double RADIUS = 20;
+	public static double RADIUS = 30;
 	public HandView() {
 		handVisual = new Circle(RADIUS);
 		handVisual.setFill(Color.SANDYBROWN);
