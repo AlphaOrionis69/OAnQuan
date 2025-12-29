@@ -10,12 +10,12 @@ public class MainMenuController {
 
 	@FXML
 	public void handleStart(ActionEvent event) {
-		NavigationController.getInstance().navigateTo("/view/GameScreen.fxml");
+		NavigationController.getInstance().showGameScreen();
 	}
 
 	@FXML
 	public void handleHelp(ActionEvent event) {
-		NavigationController.getInstance().navigateTo("/view/HelpScreen.fxml");
+		NavigationController.getInstance().showHelpScreen();
 	}
 
 	@FXML

@@ -17,12 +17,12 @@ public class MandarinSquareView extends SquareView {
 		
 		if (square.getId() == 11) { 
 			this.getStyleClass().add("mandarin-left");
-			countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.8)); 
+			countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.85)); 
 			countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.025)); 
 		} else { 
 			this.getStyleClass().add("mandarin-right");
 			countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.05)); 
-			countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.85));
+			countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.9));
 		}
 	}
 	

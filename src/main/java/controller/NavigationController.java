@@ -21,15 +21,28 @@ public class NavigationController {
 		this.stage = stage;
 	}
 
-	public void navigateTo(String fxmlPath) {
+	private void navigateTo(String fxmlPath, String title) {
 		try {
 			FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
 			Parent root = loader.load();
 			Scene scene = new Scene(root, 1000, 700);
 			stage.setScene(scene);
+			stage.setTitle(title);
 			stage.show();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	public void showMainMenu() {
+		stage.setMinWidth(600); stage.setMinHeight(300);
+		NavigationController.getInstance().navigateTo("/view/MainMenu.fxml", "O An Quan - Menu");
+	}
+	public void showHelpScreen() {
+		stage.setMinWidth(500); stage.setMinHeight(300);
+		NavigationController.getInstance().navigateTo("/view/HelpScreen.fxml", "O An Quan - Help");
+	}
+	public void showGameScreen() {
+		stage.setMinWidth(950); stage.setMinHeight(600);
+		NavigationController.getInstance().navigateTo("/view/GameScreen.fxml", "O An Quan - Playing");
 	}
 }

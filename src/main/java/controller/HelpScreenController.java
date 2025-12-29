@@ -7,6 +7,6 @@ public class HelpScreenController {
 
 	@FXML
 	public void handleBack(ActionEvent event) {
-		NavigationController.getInstance().navigateTo("/view/MainMenu.fxml");
+		NavigationController.getInstance().showMainMenu();
 	}
 }

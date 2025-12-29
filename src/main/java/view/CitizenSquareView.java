@@ -18,7 +18,7 @@ public class CitizenSquareView extends SquareView {
 		}
 		
 		countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.05));
-		countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.75));
+		countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.80));
 	}
 
 	

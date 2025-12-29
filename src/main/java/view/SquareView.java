@@ -24,7 +24,7 @@ public abstract class SquareView extends Pane {
 	public static final double BIG_STONE_RADIUS = 12.0;
 	public static final double SMALL_STONE_RADIUS = 5.0;
 	private Random random = new Random();
-	private static final int MAX_REROLL = 30;
+	private static final int MAX_REROLL = 50;
 	public SquareView(Square square) {
 		this.square = square;
 		this.setPrefSize(CELL_WIDTH, CELL_HEIGHT);
@@ -92,23 +92,33 @@ public abstract class SquareView extends Pane {
 	private void drawStones(boolean isBig) {
 		double radius = isBig ? BIG_STONE_RADIUS : SMALL_STONE_RADIUS;
 		
-		
+		double bestX = 0, bestY = 0, bestDistance = -1;
 		for (int turn = 0; turn <= MAX_REROLL; turn++) {
 			double maxPos = stoneLayer.getPrefWidth() - (radius * 2);
 			double x = (random.nextDouble() * maxPos) + radius;
 			double y = (random.nextDouble() * maxPos) + radius;
 			
 			boolean ok = true;
+			double curDistance = Double.MAX_VALUE;
 			for (Node stone : stoneLayer.getChildren()) {
 				if (stone instanceof Circle) {
 					Circle circle = (Circle)stone;
 					Point2D p = new Point2D(circle.getLayoutX() + circle.getRadius(), circle.getLayoutY() + circle.getRadius());
-					if (p.distance(x, y) < circle.getRadius() + radius - 2) {
-						ok = false; break;
+					if (p.distance(x, y) < circle.getRadius() + radius + 1) {
+						curDistance = Math.min(curDistance, p.distance(x, y));
+						ok = false;
 					}
 				}
 			}
+			if (bestDistance < curDistance) {
+				bestDistance = curDistance;
+				bestX = x;
+				bestY = y;
+			}
 			if (ok || turn == MAX_REROLL) {
+				if (!ok) { 
+					x = bestX; y = bestY; 
+				}
 				Circle c = new Circle(radius);
 				try {
 					if (isBig) {

@@ -15,13 +15,11 @@ public class Board {
 		for (int i = 0; i < 5; i++) {
 			squares.add(new CitizenSquare(i, 5));
 		}
-		
 		squares.add(new MandarinSquare(5, 1));
 		
 		for (int i = 6; i < 11; i++) {
 			squares.add(new CitizenSquare(i, 5));
 		}
-		
 		squares.add(new MandarinSquare(11, 1));
 	}
 
@@ -48,7 +46,9 @@ public class Board {
 		}
 		return total;
 	}
-	
+	public boolean areMandarinsEmpty() {
+		return squares.get(5).calculatePoints() == 0 && squares.get(11).calculatePoints() == 0;
+	}
 	public List<Square> getSquares() {
 		return squares;
 	}

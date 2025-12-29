@@ -2,7 +2,7 @@ package model.players;
 
 import model.board.Board;
 
-public abstract class Player {
+public class Player {
 	private String name;
 	private int score;
 	private int side;
@@ -36,11 +36,10 @@ public abstract class Player {
 		this.score -= points;
 	}
 	public void setScore(int points) {
-		this.score= points;
+		this.score = points;
 	}
 	public void resetScore() {
 		this.score = 0;
 	}
 	
-	public abstract Move makeMove(Board board);
 }

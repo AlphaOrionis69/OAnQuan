@@ -1,8 +1,7 @@
 package view;
 
 import model.board.Square;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
@@ -15,7 +14,7 @@ import java.util.Map;
 
 public class BoardView extends HBox {
 	private Map<Integer, SquareView> squareViews = new HashMap<>();
-	private int spacing = 4;
+	private int spacing = 8;
 	public BoardView() {
 		this.setAlignment(Pos.CENTER);
 		this.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);

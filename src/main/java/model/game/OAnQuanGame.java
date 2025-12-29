@@ -1,11 +1,10 @@
 package model.game;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import java.util.List;
 import model.board.*;
 import model.events.*;
-import model.players.HumanPlayer;
 import model.players.Move;
 import model.players.Player;
 import model.rules.GameRule;
@@ -21,18 +20,19 @@ public class OAnQuanGame {
 	private int penalty = 0; 
 	
 	public OAnQuanGame() {
-		this.board = new Board();
-		this.rule = new StandardRule();
-		this.isGameOver = false;
+		startNewGame("Player 1", "Player 2");
 	}
 	
 	public void startNewGame(String p1Name, String p2Name) {
-		player1 = new HumanPlayer(p1Name, 0);
-		player2 = new HumanPlayer(p2Name, 1);
-		currentPlayer = player1;
-		isGameOver = false;		
+		board = new Board();
+		rule = new StandardRule();
+		player1 = new Player(p1Name, 0);
+		player2 = new Player(p2Name, 1);
 		player1.setScore(0);
 		player2.setScore(0);
+		currentPlayer = player1;
+		isGameOver = false;		
+		
 		penalty = 0;
 	}
 	
@@ -62,35 +62,31 @@ public class OAnQuanGame {
 		List<GameEvent> events = new ArrayList<>();
 		if (sideEmpty) {
 			int stonesNeeded = 5;
-			boolean lending = false;
+			boolean isLending = false;
 			int amountLent = 0;
-			
+			if (player1.getScore() + player2.getScore() < stonesNeeded) {
+				// special case: no one can help continue the game
+				events.add(new StopEvent(-1));
+				isGameOver = true;
+				endGame();
+				return events;
+			}
 			if (currentPlayer.getScore() >= stonesNeeded) {
 				currentPlayer.decreaseScore(stonesNeeded);
 			} else {
 				amountLent = stonesNeeded - currentPlayer.getScore();
-				lending = true;
+				isLending = true;
 				if (currentPlayer == player1) {
 					penalty -= amountLent;
-					if (player2.getScore() < amountLent) {
-						// special case: no one can help continue the game
-						events.add(new StopEvent(-1));
-						isGameOver = true;
-						return events;
-					}
-					else player2.decreaseScore(amountLent);
+					player2.decreaseScore(amountLent);
 				} else {
 					penalty += amountLent;
-					if (player1.getScore() < amountLent) {
-						events.add(new StopEvent(-1));
-						return events;
-					}
-					else player1.decreaseScore(amountLent);
+					player1.decreaseScore(amountLent);
 				}
 				currentPlayer.setScore(0);
 			}
 			
-			events.add(new DistributeEvent(currentPlayer, lending, amountLent, 1));
+			events.add(new DistributeEvent(currentPlayer, isLending, amountLent, 1));
 			
 			for (int i = startIdx; i <= endIdx; i++) {
 				board.getSquare(i).addStones(1);
@@ -109,6 +105,7 @@ public class OAnQuanGame {
 		if (rule.isGameOver(board)) {
 			isGameOver = true;
 			events.add(new StopEvent(-1));
+			endGame();
 			return events;
 		}
 		if (currentPlayer == player1) currentPlayer = player2;

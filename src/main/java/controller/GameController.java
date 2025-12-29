@@ -60,34 +60,38 @@ public class GameController {
 	private OAnQuanGame game;
 	
 	private int selectedSquareId = -1;
+	private int enteredSquareId = -1;
 	private boolean isAnimating = false;
 	
-	private final double DELAY_AFTER_MOVING_HAND = 100;
-	private final double DELAY_AFTER_PICKING_STONES = 100;
-	private final double DELAY_AFTER_DROPPING_STONES = 100;
-	private final double DELAY_AFTER_SWITCHING_TURN = 100;
-	private final double DELAY_AFTER_CAPTURING_STONES = 100;
-	private final double DELAY_BEFORE_DISTRIBUTING_STONES = 1500;
-	
-	private Queue<GameEvent> eventQueue = new LinkedList<>();
+	private static final double DELAY_AFTER_MOVING_HAND = 100;
+	private static final double DELAY_AFTER_PICKING_STONES = 500;
+	private static final double DELAY_AFTER_DROPPING_STONES = 100;
+	private static final double DELAY_AFTER_SWITCHING_TURN = 100;
+	private static final double DELAY_AFTER_CAPTURING_STONES = 300;
+	private static final double DELAY_BEFORE_DISTRIBUTING_STONES = 1500;
+	private static final double DELAY_BEFORE_CALCULATING_FINAL_SCORES = 200;
+	private static final double DELAY_AFTER_CALCULATING_FINAL_SCORES = 1500;
 	
 	@FXML
 	private void initialize() {
 		game = new OAnQuanGame();
-		game.startNewGame("Player 1", "Player 2");
+		//game.startNewGame("Player 1", "Player 2");
 		boardView = new BoardView();
 		squareViews = boardView.getAllViews();
 		boardPane.getChildren().add(boardView);
 		//boardView.setAlignment(Pos.CENTER);
-		drawBoard();
+		createBoard();
 		createDirectionArrows();
 		createHand();
+		
+		
 		rootPane.layoutBoundsProperty().addListener((obs, o, n) -> {
 			Platform.runLater(() -> {
 				arrowView.updateArrowPosition();
 				handView.updateHandPosition();
 			});
 		});
+		// add again to make the overlay on top of all (wrap it in the future)
 		if (rootPane.getChildren().contains(msgOverlay)) {
 			rootPane.getChildren().remove(msgOverlay);
 			rootPane.getChildren().add(msgOverlay);
@@ -96,7 +100,7 @@ public class GameController {
 	}
 
 	
-	private void drawBoard() {
+	private void createBoard() {
 		boardView.init(game.getBoard().getSquares());	
 		for (Map.Entry<Integer, SquareView> entry : squareViews.entrySet()) {
 			SquareView sv = entry.getValue();
@@ -110,42 +114,55 @@ public class GameController {
 
 	private void createDirectionArrows() {
 		arrowView = new DirectionControlView();
-		arrowView.getArrowCCW().setOnMouseClicked(e -> processMove(false));
-		arrowView.getArrowCW().setOnMouseClicked(e -> processMove(true));
 		
-		arrowView.getArrowCCW().setOnMouseEntered(e -> handleArrowEnter(e));
-		arrowView.getArrowCW().setOnMouseEntered(e -> handleArrowEnter(e));
+		arrowView.getRightArrow().setOnMouseClicked(e -> handleArrowClick(e));
+		arrowView.getLeftArrow().setOnMouseClicked(e -> handleArrowClick(e));
 		
-		arrowView.getArrowCCW().setOnMouseExited(e -> handleArrowExit(e));
-		arrowView.getArrowCW().setOnMouseExited(e -> handleArrowExit(e));
+		arrowView.getRightArrow().setOnMouseEntered(e -> handleArrowEnter(e));
+		arrowView.getLeftArrow().setOnMouseEntered(e -> handleArrowEnter(e));
 		
-		rootPane.getChildren().addAll(arrowView.getArrowCCW(), arrowView.getArrowCW());
+		arrowView.getRightArrow().setOnMouseExited(e -> handleArrowExit(e));
+		arrowView.getLeftArrow().setOnMouseExited(e -> handleArrowExit(e));
+		
+		rootPane.getChildren().addAll(arrowView);
 	}
 	
 	private void createHand() {
 		handView = new HandView();
 		rootPane.getChildren().add(handView);
 	}
+	
 	private void handleArrowEnter(MouseEvent e) {
 		((Arrow)(e.getSource())).highlight(true);
 	}
 	private void handleArrowExit(MouseEvent e) {
 		((Arrow)(e.getSource())).highlight(false);
 	}
+	private void handleArrowClick(MouseEvent e) {
+		if (selectedSquareId == -1) return;
+		Arrow arrow = (Arrow)(e.getSource());
+		boolean isLeftDirection = arrow == arrowView.getLeftArrow(); boolean isClockwise;
+		if (selectedSquareId >= 0 && selectedSquareId <= 4) isClockwise = !isLeftDirection;
+		else isClockwise = isLeftDirection;
+		processMove(isClockwise);
+	}
+	
 	private void handleSquareEnter(SquareView sv) {
+		enteredSquareId = sv.getSquare().getId();
 		if (isAnimating || game.isGameOver()) return;
 		Square s = sv.getSquare();
 		if (!game.getRule().isValidMove(game.getBoard(), s.getId(), game.getCurrentPlayer())) {
 			return;
-		}
+		}		
 		sv.highlight(true);
 	}
 	private void handleSquareExit(SquareView sv) {
+		enteredSquareId = -1;
 		if (isAnimating || game.isGameOver()) return;
 		Square s = sv.getSquare();
 		if (!game.getRule().isValidMove(game.getBoard(), s.getId(), game.getCurrentPlayer())) {
 			return;
-		}
+		}	
 		if (s.getId() != selectedSquareId) {
 			sv.highlight(false);
 		}
@@ -170,6 +187,7 @@ public class GameController {
 		arrowView.attachTo(sv);
 		arrowView.show();
 	}
+	
 	private void deselect() {
 		if (selectedSquareId != -1) {
 			squareViews.get(selectedSquareId).highlight(false);
@@ -179,123 +197,136 @@ public class GameController {
 		arrowView.hide();
 	}
 
-	private void processMove(boolean clockwise) {
-		if (selectedSquareId == -1) return;
-		
-		Move move = new Move(selectedSquareId, clockwise);
-		List<GameEvent> events = game.move(move);
-		
+	private void processMove(boolean isClockwise) {
+		if (selectedSquareId == -1) return;	
+		Move move = new Move(selectedSquareId, isClockwise);
+		List<GameEvent> events = game.move(move);		
 		deselect();
-		
-		if (events != null) {
-			eventQueue.addAll(events);
-			//playNextEvent();
-			stimulateAnimation();
-		}
-		
+		stimulateAnimation(events);
 	}
-	private Timeline timeline = new Timeline();
-	private double delayTime = 0;
-	private void stimulateAnimation() {
-		
+
+	
+	private void stimulateAnimation(List<GameEvent> events) {
+		if (events == null) return;
+		Timeline timeline = new Timeline();
+		double delayTime = 0;
 		isAnimating = true;
 		handView.show();
-		while (!eventQueue.isEmpty()) {
-			GameEvent event = eventQueue.poll();
-			
+		for (GameEvent event : events) {	
 			if (event instanceof PickUpEvent) {
-				PickUpEvent e = (PickUpEvent) event;
-				SquareView sv = squareViews.get(e.getSquareId());
-				KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
-					handView.moveHandTo(sv);
-				});
-				delayTime += DELAY_AFTER_MOVING_HAND;
-				
-				KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
-					handView.addAmount(e.getAmountPickedUp());
-					sv.clearVisualStones();
-				});
-				delayTime += DELAY_AFTER_PICKING_STONES;
-				
-				timeline.getKeyFrames().addAll(kf1, kf2);
+				delayTime = animatePickUp((PickUpEvent)event, timeline, delayTime);
 				
 			} else if (event instanceof DropEvent) {
-				DropEvent e = (DropEvent) event;
-				SquareView sv = squareViews.get(e.getSquareId());
-
-				KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
-					handView.moveHandTo(sv);
-				});
-				delayTime += DELAY_AFTER_MOVING_HAND;
-				
-				KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
-					handView.decreaseAmount(e.getAmountDropped());
-					sv.addVisualStone();
-				});
-				delayTime += DELAY_AFTER_DROPPING_STONES;
-				
-				timeline.getKeyFrames().addAll(kf1, kf2);
+				delayTime = animateDrop((DropEvent)event, timeline, delayTime);
 				
 			} else if (event instanceof CaptureEvent) {
-				CaptureEvent e = (CaptureEvent) event;
-				SquareView sv = squareViews.get(e.getSquareId());
+				delayTime = animateCapture((CaptureEvent)event, timeline, delayTime);
 				
-				KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
-					handView.moveHandTo(sv);
-					sv.highlight(true);
-				});
-				delayTime += DELAY_AFTER_MOVING_HAND;
+			} else if (event instanceof DistributeEvent) {			
+				delayTime = animateDistribute((DistributeEvent)event, timeline, delayTime);
 				
-				KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
-					sv.clearVisualStones();
-					sv.highlight(false);
-					updateScore(e.getAmountCaptured(), e.getPlayer());
-				});
-				delayTime += DELAY_AFTER_CAPTURING_STONES;
-				
-				timeline.getKeyFrames().addAll(kf1, kf2);
-
-			} else if (event instanceof DistributeEvent) {
-				DistributeEvent e = (DistributeEvent) event;
-				KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
-					msgTitle.setText("Distribution");
-					if (e.isLending()) msgContent.setText(e.getPlayer().getName() + " lends stones from other player to distribute");
-					else msgContent.setText(e.getPlayer().getName() + " distributes stones.");
-					msgOverlay.setVisible(true);
-				});
-				
-				delayTime += DELAY_BEFORE_DISTRIBUTING_STONES;
-				KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
-					msgOverlay.setVisible(false);
-					handView.hide();
-					int start = (e.getPlayer().getSide() == 0) ? 0 : 6;
-					int end = (e.getPlayer().getSide() == 0) ? 4 : 10;
-					for (int i = start; i <= end; i++) {
-						squareViews.get(i).addVisualStone();
-					}
-					Player otherPlayer = e.getPlayer() == game.getPlayer1() ? game.getPlayer2() : game.getPlayer1();
-					updateScore(-e.getAmountLent(), otherPlayer);
-					
-					updateScore(-(5*e.getAmountPerSquare() - e.getAmountLent()), e.getPlayer());
-				});
-				
-				timeline.getKeyFrames().addAll(kf1, kf2);
-
 			} else if (event instanceof SwitchTurnEvent) {
-				SwitchTurnEvent e = (SwitchTurnEvent) event;
-				KeyFrame kf = new KeyFrame(Duration.millis(delayTime), ev -> {
-					updateTurn(e.getNewPlayer());
-				});
-				delayTime += DELAY_AFTER_SWITCHING_TURN;
+				delayTime = animateSwitchTurn((SwitchTurnEvent)event, timeline, delayTime);
 				
-				timeline.getKeyFrames().add(kf);
-
 			} else if (event instanceof StopEvent) {
-				// maybe add something more here
-				//return;
+				delayTime = animateStop((StopEvent)event, timeline, delayTime);
+				
 			}
 			
 		}
+		timeline.setOnFinished(ev -> {
+			if (enteredSquareId != -1) {
+				handleSquareEnter(squareViews.get(enteredSquareId));
+			}
+		});
+		timeline.play();
+	}
+	private double animatePickUp(PickUpEvent e, Timeline timeline, double delayTime) {
+		SquareView sv = squareViews.get(e.getSquareId());
+		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			handView.moveHandTo(sv);
+		});
+		delayTime += DELAY_AFTER_MOVING_HAND;
+		
+		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			handView.addAmount(e.getAmountPickedUp());
+			sv.clearVisualStones();
+		});
+		delayTime += DELAY_AFTER_PICKING_STONES;
+		
+		timeline.getKeyFrames().addAll(kf1, kf2);
+		return delayTime;
+	}
+	private double animateDrop(DropEvent e, Timeline timeline, double delayTime) {
+		SquareView sv = squareViews.get(e.getSquareId());
+		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			handView.moveHandTo(sv);
+		});
+		delayTime += DELAY_AFTER_MOVING_HAND;
+		
+		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			handView.decreaseAmount(e.getAmountDropped());
+			sv.addVisualStone();
+		});
+		delayTime += DELAY_AFTER_DROPPING_STONES;
+		
+		timeline.getKeyFrames().addAll(kf1, kf2);
+		return delayTime;
+	}
+	private double animateCapture(CaptureEvent e, Timeline timeline, double delayTime) {
+		SquareView sv = squareViews.get(e.getSquareId());
+		
+		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			handView.moveHandTo(sv);
+			sv.highlight(true);
+		});
+		delayTime += DELAY_AFTER_MOVING_HAND;
+		
+		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			sv.clearVisualStones();
+			sv.highlight(false);
+			updateScore(e.getAmountCaptured(), e.getPlayer());
+		});
+		delayTime += DELAY_AFTER_CAPTURING_STONES;
+		
+		timeline.getKeyFrames().addAll(kf1, kf2);
+		return delayTime;
+	}
+	private double animateDistribute(DistributeEvent e, Timeline timeline, double delayTime) {
+		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			msgTitle.setText("Distribution");
+			if (e.isLending()) msgContent.setText(e.getPlayer().getName() + " lends stones from other player to distribute");
+			else msgContent.setText(e.getPlayer().getName() + " distributes stones.");
+			msgOverlay.setVisible(true);
+		});
+		
+		delayTime += DELAY_BEFORE_DISTRIBUTING_STONES;
+		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			msgOverlay.setVisible(false);
+			handView.hide();
+			int start = (e.getPlayer().getSide() == 0) ? 0 : 6;
+			int end = (e.getPlayer().getSide() == 0) ? 4 : 10;
+			for (int i = start; i <= end; i++) {
+				squareViews.get(i).addVisualStone();
+			}
+			Player otherPlayer = e.getPlayer() == game.getPlayer1() ? game.getPlayer2() : game.getPlayer1();
+			updateScore(-e.getAmountLent(), otherPlayer);			
+			updateScore(-(5*e.getAmountPerSquare() - e.getAmountLent()), e.getPlayer());
+		});
+		
+		timeline.getKeyFrames().addAll(kf1, kf2);
+		return delayTime;
+	}
+	private double animateSwitchTurn(SwitchTurnEvent e, Timeline timeline, double delayTime) {
+		KeyFrame kf = new KeyFrame(Duration.millis(delayTime), ev -> {
+			updateTurn(e.getNewPlayer());
+		});
+		delayTime += DELAY_AFTER_SWITCHING_TURN;
+		
+		timeline.getKeyFrames().add(kf);
+		return delayTime;
+	}
+	private double animateStop(StopEvent e, Timeline timeline, double delayTime) {
 		KeyFrame kf = new KeyFrame(Duration.millis(delayTime), ev -> {
 			isAnimating = false;
 			handView.reset();
@@ -303,30 +334,26 @@ public class GameController {
 			//syncBoard(); syncScore(); syncTurn();
 		});
 		timeline.getKeyFrames().add(kf);
-		checkGameOver();
-		
-		timeline.setOnFinished(ev -> {
-			timeline.getKeyFrames().clear();
-			delayTime = 0;
-		});
-		timeline.play();
-	}
-	
-	private void checkGameOver() {
-		game.endGame();
-		if (game.isGameOver()) {
-			delayTime += 200;
-			KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
-				syncBoard(); syncScore(); syncTurn();
-			});
-			delayTime += 1500;
-			KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
-				msgTitle.setText("Game Over");
-				msgContent.setText("Winner: " + (game.getPlayer1().getScore() > game.getPlayer2().getScore() ? "Player 1" : "Player 2"));
-				msgOverlay.setVisible(true);
-			});
-			timeline.getKeyFrames().addAll(kf1, kf2);
+		if (e.getLastSquareId() == -1) {
+			delayTime = animateGameOver(timeline, delayTime);
 		}
+		return delayTime;
+	}
+	private double animateGameOver(Timeline timeline, double delayTime) {
+		delayTime += DELAY_BEFORE_CALCULATING_FINAL_SCORES;
+		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			syncBoard(); syncScore(); syncTurn();
+		});
+		
+		delayTime += DELAY_AFTER_CALCULATING_FINAL_SCORES;
+		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			msgTitle.setText("Game Over");
+			msgContent.setText("Winner: " + (game.getPlayer1().getScore() > game.getPlayer2().getScore() ? "Player 1" : "Player 2"));
+			msgOverlay.setVisible(true);
+		});
+		timeline.getKeyFrames().addAll(kf1, kf2);
+
+		return delayTime;
 	}
 	
 	private void syncBoard() {
@@ -368,8 +395,6 @@ public class GameController {
 	public void handleBack() {
 		// just for sure
 		isAnimating = false;
-		eventQueue.clear();
-		
-		NavigationController.getInstance().navigateTo("/view/MainMenu.fxml");
+		NavigationController.getInstance().showMainMenu();
 	}
 }
