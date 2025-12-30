@@ -66,7 +66,7 @@ public class OAnQuanGame {
 			int amountLent = 0;
 			if (player1.getScore() + player2.getScore() < stonesNeeded) {
 				// special case: no one can help continue the game
-				events.add(new StopEvent(-1));
+				events.add(new StopEvent(StopEvent.GAME_OVER));
 				isGameOver = true;
 				endGame();
 				return events;
@@ -104,7 +104,7 @@ public class OAnQuanGame {
 		
 		if (rule.isGameOver(board)) {
 			isGameOver = true;
-			events.add(new StopEvent(-1));
+			events.add(new StopEvent(StopEvent.GAME_OVER));
 			endGame();
 			return events;
 		}

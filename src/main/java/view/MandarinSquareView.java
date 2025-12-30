@@ -1,21 +1,20 @@
 package view;
 
-import model.board.Square;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
-import javafx.scene.shape.Shape;
+
 
 public class MandarinSquareView extends SquareView {
 	
-	public MandarinSquareView(Square square) {
-		super(square);
+	public MandarinSquareView(int squareId) {
+		super(squareId);
 		double doubleHeight = CELL_HEIGHT * 2;
 		this.setPrefHeight(doubleHeight);
 		backgroundLayer.setPrefHeight(doubleHeight);	
 		stoneLayer.setLayoutY((doubleHeight - stoneLayer.getPrefHeight()) / 2);
 		
-		if (square.getId() == 11) { 
+		if (squareId == 11) { 
 			this.getStyleClass().add("mandarin-left");
 			countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.85)); 
 			countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.025)); 
@@ -39,7 +38,7 @@ public class MandarinSquareView extends SquareView {
 		holder.setFill(Color.BURLYWOOD);
 		holder.setStroke(Color.BLACK);
 		
-		if (getSquare().getId() == 11) { 
+		if (getSquareId() == 11) { 
 			holder.setCenterX(CELL_WIDTH); 
 			holder.setCenterY(h / 2 + 1);
 			holder.setStartAngle(90);

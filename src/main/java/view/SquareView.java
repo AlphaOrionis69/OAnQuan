@@ -1,18 +1,16 @@
 package view;
 
-import model.board.Square;
+import model.game.OAnQuanGame;
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Pane;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import java.util.Random;
 
 public abstract class SquareView extends Pane {
-	private Square square;
+	private int squareId;
 	private int currentValue = 0;
 	protected Label countLabel;
 	protected Pane stoneLayer; 
@@ -24,9 +22,9 @@ public abstract class SquareView extends Pane {
 	public static final double BIG_STONE_RADIUS = 12.0;
 	public static final double SMALL_STONE_RADIUS = 5.0;
 	private Random random = new Random();
-	private static final int MAX_REROLL = 50;
-	public SquareView(Square square) {
-		this.square = square;
+	private static final int MAX_REROLL = 100;
+	public SquareView(int squareId) {
+		this.squareId = squareId;
 		this.setPrefSize(CELL_WIDTH, CELL_HEIGHT);
 		
 		backgroundLayer = new Pane();
@@ -55,17 +53,15 @@ public abstract class SquareView extends Pane {
 		
 		this.getChildren().addAll(backgroundLayer, stoneLayer, countLabel);
 		
-		
-		syncSquare();
 	}
 	
-	public Square getSquare() { return square; }
+	public int getSquareId() { return squareId; }
 	
 	
-	public void syncSquare() {
+	public void syncSquare(OAnQuanGame game) {
 		stoneLayer.getChildren().clear();
-		int small = square.getSmallStones();
-		int big = square.getBigStones();
+		int small = game.getBoard().getSquare(squareId).getSmallStones();		
+		int big = game.getBoard().getSquare(squareId).getBigStones();
 		
 		for (int i = 0; i < big; i++) {
 			drawStones(true);
@@ -73,8 +69,8 @@ public abstract class SquareView extends Pane {
 		for (int i = 0; i < small; i++) {
 			drawStones(false);
 		}
-		currentValue = square.calculatePoints();
-		countLabel.setText(String.valueOf(square.calculatePoints()));
+		currentValue = game.getBoard().getSquare(squareId).calculatePoints();
+		countLabel.setText(String.valueOf(game.getBoard().getSquare(squareId).calculatePoints()));
 	}
 	
 	public void addVisualStone() {
@@ -120,17 +116,11 @@ public abstract class SquareView extends Pane {
 					x = bestX; y = bestY; 
 				}
 				Circle c = new Circle(radius);
-				try {
-					if (isBig) {
-						c.getStyleClass().add("big-stone-shape");
-					}
-					else {
-						c.getStyleClass().add("stone-shape");
-					}
+				if (isBig) {
+					c.getStyleClass().add("big-stone-shape");
 				}
-				catch (Exception e) {
-					c.setFill(isBig ? Color.GOLD : Color.WHITE);
-					c.setStroke(Color.BLACK);
+				else {
+					c.getStyleClass().add("stone-shape");
 				}
 				c.setLayoutX(x);
 				c.setLayoutY(y);
@@ -139,32 +129,17 @@ public abstract class SquareView extends Pane {
 				break;
 			}	
 		}
-		
-		
-		
+	
 	}
 	
 	public void highlight(boolean on) {
-		if (on) {
-			try {
-				if (!this.getStyleClass().contains("square-hover")) {
-					this.getStyleClass().add("square-hover");
-				}
+		if (on) {		
+			if (!this.getStyleClass().contains("square-hover")) {
+				this.getStyleClass().add("square-hover");
 			}
-			catch (Exception e) {
-				backgroundShape.setStroke(Color.YELLOW);
-			}
-			
+
 		} else {
-			try {
-				if (this.getStyleClass().contains("square-hover")) {
-					this.getStyleClass().remove("square-hover");
-				}
-			}
-			catch (Exception e) {
-				backgroundShape.setStroke(Color.BLACK);
-			}
-			
+			this.getStyleClass().remove("square-hover");
 		}
 	}
 	protected abstract void drawBackground();

@@ -1,22 +1,13 @@
 package view;
 
-import model.board.Square;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 
 public class CitizenSquareView extends SquareView {
 	
-	public CitizenSquareView(Square square) {
-		super(square);
-		try {
-			this.getStyleClass().add("citizen-square");
-		}
-		catch (Exception e) {
-			e.printStackTrace();
-			this.setStyle("-fx-border-width: 0; -fx-background-color: transparent; -fx-cursor: hand;");
-		}
-		
+	public CitizenSquareView(int squareId) {
+		super(squareId);	
+		this.getStyleClass().add("citizen-square");		
 		countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.05));
 		countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.80));
 	}

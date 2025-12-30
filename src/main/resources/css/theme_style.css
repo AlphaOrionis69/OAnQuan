@@ -1,6 +1,6 @@
 .root {
 	/*-fx-background-color: red; */
-    -fx-background-image: url('../image/theme.png');
+    -fx-background-image: url('/image/background_boardgame_first.jpg');
     -fx-background-size: cover;
     -fx-background-position: center;
     -fx-background-repeat: no-repeat;

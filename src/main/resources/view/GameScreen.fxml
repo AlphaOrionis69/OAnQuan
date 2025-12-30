@@ -11,56 +11,21 @@
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="rootPane" prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.GameController">
+<AnchorPane fx:id="rootPane" stylesheets="@../css/theme_style.css" prefHeight="400.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.GameController">
    <children>
-      <BorderPane prefHeight="600.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <top>
-            <VBox alignment="CENTER" prefHeight="50.0" spacing="5.0" style="-fx-background-color: #ecf0f1;">
-               <children>
-                  <Label fx:id="lblTurn" text="Turn: Player 1" textFill="#2980b9">
-                     <font><Font size="16.0" name="System Bold"/></font>
-                  </Label>
-               </children>
-            </VBox>
-         </top>
-         
+      <BorderPane fx:id="containerPane" prefHeight="400.0" prefWidth="1000.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <center>
-            <StackPane fx:id="boardPane" prefHeight="400.0" prefWidth="800.0" style="-fx-background-color: #bdc3c7;" BorderPane.alignment="CENTER" />
-         </center>
-         
+            <StackPane fx:id="boardPane" prefHeight="400.0" prefWidth="800.0" BorderPane.alignment="CENTER" />
+         </center>       
          <bottom>
-            <StackPane prefHeight="80.0" style="-fx-background-color: #ecf0f1;">
-               <padding>
-                  <Insets left="80.0" right="80.0" />
-               </padding>
+            <StackPane prefHeight="80.0">
                <children>
-                  <Label fx:id="lblP1Score" text="P1: 0" textFill="#27ae60" StackPane.alignment="CENTER_LEFT">
-                     <font><Font name="System Bold" size="18.0" /></font>
-                  </Label>
-                  
                   <Button mnemonicParsing="false" onAction="#handleBack" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;" text="Back to Menu" StackPane.alignment="CENTER">
                      <font><Font name="System Bold" size="14.0" /></font>
                   </Button>
-                  
-                  <Label fx:id="lblP2Score" text="P2: 0" textFill="#c0392b" StackPane.alignment="CENTER_RIGHT">
-                     <font><Font name="System Bold" size="18.0" /></font>
-                  </Label>
                </children>
             </StackPane>
          </bottom>
       </BorderPane>
-               
-      <StackPane fx:id="msgOverlay" style="-fx-background-color: rgba(0,0,0,0.5)" visible="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
-          <VBox alignment="CENTER" spacing="10" style="-fx-background-color: white; -fx-padding: 20; -fx-background-radius: 10; -fx-max-width: 400;" StackPane.alignment="CENTER">
-              <children>
-                <Label fx:id="msgTitle" style="-fx-font-size: 18px; -fx-font-weight: bold" />
-              	<Label fx:id="msgContent" wrapText="true" />
-                <Button onAction="#closeOverlay" text="OK" />
-              </children>
-              <StackPane.margin>
-                <Insets top="200.0" bottom="200.0" />
-              </StackPane.margin>          
-          </VBox>        
-      </StackPane>
    </children>
 </AnchorPane>

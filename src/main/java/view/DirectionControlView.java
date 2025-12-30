@@ -9,7 +9,7 @@ import javafx.scene.layout.StackPane;
 public class DirectionControlView extends Pane{
 	private Arrow leftArrow, rightArrow;
 	private SquareView target;
-	private final double GAP_BETWEEN_ARROW_AND_SQUARE = 25;
+	public static final double GAP_BETWEEN_ARROW_AND_SQUARE = 25;
 	public DirectionControlView() {
 		try {
 			leftArrow = new Arrow("/image/left-arrow.png");

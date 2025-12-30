@@ -4,12 +4,10 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.text.Font?>
 
-<VBox xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="controller.MainMenuController"
-      alignment="CENTER" spacing="20" style="-fx-background-color: #f0f4c3;">
+<VBox alignment="CENTER" spacing="20" stylesheets="@../css/theme_style.css" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="controller.MainMenuController">
     <padding><Insets top="50" right="50" bottom="50" left="50"/></padding>
     
-    <Label text="Ô Ăn Quan" style="-fx-font-size: 30px; -fx-font-weight: bold;"/>
+    <Label text="O An Quan" style="-fx-font-size: 30px; -fx-font-weight: bold;" textFill="#f0f0f0"/>
     
     <Button text="Start Game" minWidth="200" onAction="#handleStart" style="-fx-cursor: hand">
         <font><Font size="16.0" /></font>

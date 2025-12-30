@@ -8,9 +8,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="600.0" prefWidth="1000.0" style="-fx-background-color: #ecf0f1;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.HelpScreenController">
+<BorderPane prefHeight="600.0" prefWidth="1000.0" stylesheets="@../css/theme_style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.HelpScreenController">
    <top>
-      <VBox alignment="CENTER" prefHeight="80.0" style="-fx-background-color: #bdc3c7;" BorderPane.alignment="CENTER">
+      <VBox alignment="CENTER" prefHeight="80.0" BorderPane.alignment="CENTER">
          <children>
             <Label text="How to Play O An Quan" textFill="#2c3e50">
                <font>
@@ -37,7 +37,7 @@
    </center>
    
    <bottom>
-      <VBox alignment="CENTER" prefHeight="80.0" style="-fx-background-color: #ecf0f1;" BorderPane.alignment="CENTER">
+      <VBox alignment="CENTER" prefHeight="80.0" BorderPane.alignment="CENTER">
          <children>
             <Button mnemonicParsing="false" onAction="#handleBack" prefHeight="40.0" prefWidth="150.0" style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-cursor: hand;" text="Back to Menu">
                <font>
