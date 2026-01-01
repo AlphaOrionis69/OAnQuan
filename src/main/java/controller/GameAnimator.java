@@ -15,11 +15,11 @@ import model.events.StopEvent;
 import model.events.SwitchTurnEvent;
 import model.game.OAnQuanGame;
 import model.players.Player;
-import view.BoardView;
-import view.HandView;
-import view.MessageOverlay;
-import view.SquareView;
-import view.StatusView;
+import view.board.BoardView;
+import view.board.SquareView;
+import view.component.StatusView;
+import view.control.HandView;
+import view.overlay.MessageOverlay;
 
 public class GameAnimator {
 	private final StatusView statusView;
@@ -38,7 +38,7 @@ public class GameAnimator {
 	private static final double DELAY_AFTER_SWITCHING_TURN = 100;
 	private static final double DELAY_AFTER_CAPTURING_STONES = 300;
 	private static final double DELAY_BEFORE_DISTRIBUTING_STONES = 1500;
-	private static final double DELAY_BEFORE_CALCULATING_FINAL_SCORES = 300;
+	private static final double DELAY_BEFORE_CALCULATING_FINAL_SCORES = 1500;
 	private static final double DELAY_AFTER_CALCULATING_FINAL_SCORES = 1500;
 	public GameAnimator(StatusView statusView, HandView handView, MessageOverlay msgOverlay,
 			BoardView boardView, OAnQuanGame game) {
@@ -149,8 +149,8 @@ public class GameAnimator {
 		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			msgOverlay.setVisible(false);
 			handView.hide();
-			int start = (e.getPlayer().getSide() == 0) ? 0 : 6;
-			int end = (e.getPlayer().getSide() == 0) ? 4 : 10;
+			int start = e.getPlayer().getSide().start();
+			int end = e.getPlayer().getSide().end();
 			for (int i = start; i <= end; i++) {
 				squareViews.get(i).addVisualStone();
 			}
@@ -184,18 +184,25 @@ public class GameAnimator {
 		return delayTime;
 	}
 	private double animateGameOver(Timeline timeline, double delayTime) {
-		delayTime += DELAY_BEFORE_CALCULATING_FINAL_SCORES;
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			msgOverlay.setTitle("Game Over");
+			msgOverlay.setContent("Calculating final scores...");
+			msgOverlay.setVisible(true);
+		});
+		
+		delayTime += DELAY_BEFORE_CALCULATING_FINAL_SCORES;
+		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			msgOverlay.setVisible(false);
 			boardView.syncBoard(game); statusView.syncScore(game); statusView.syncTurn(game);
 		});
 		
 		delayTime += DELAY_AFTER_CALCULATING_FINAL_SCORES;
-		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
+		KeyFrame kf3 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			msgOverlay.setTitle("Game Over");
 			msgOverlay.setContent("Winner: " + (game.getPlayer1().getScore() > game.getPlayer2().getScore() ? "Player 1" : "Player 2"));
 			msgOverlay.setVisible(true);
 		});
-		timeline.getKeyFrames().addAll(kf1, kf2);
+		timeline.getKeyFrames().addAll(kf1, kf2, kf3);
 
 		return delayTime;
 	}

@@ -15,19 +15,8 @@ public class DistributeEvent extends GameEvent {
 		this.amountPerSquare = amountPerSquare;
 	}
 
-	public Player getPlayer() {
-		return player;
-	}
-
-	public boolean isLending() {
-		return isLending;
-	}
-
-	public int getAmountLent() {
-		return amountLent;
-	}
-
-	public int getAmountPerSquare() {
-		return amountPerSquare;
-	}
+	public Player getPlayer() { return player; }
+	public boolean isLending() { return isLending; }
+	public int getAmountLent() { return amountLent; }
+	public int getAmountPerSquare() { return amountPerSquare; }
 }

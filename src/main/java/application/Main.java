@@ -8,7 +8,7 @@ public class Main extends Application {
 	public void start(Stage primaryStage) {
 		primaryStage.setTitle("O An Quan Game");
 		primaryStage.setWidth(600);
-        primaryStage.setHeight(400);
+		primaryStage.setHeight(400);
 		NavigationController.getInstance().setStage(primaryStage);
 		NavigationController.getInstance().showMainMenu();
 	}

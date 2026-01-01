@@ -3,6 +3,7 @@ package model.rules;
 import model.board.Board;
 import model.board.MandarinSquare;
 import model.board.Square;
+import model.game.OAnQuanGame;
 import model.players.Player;
 
 public class StandardRule implements GameRule {
@@ -14,12 +15,10 @@ public class StandardRule implements GameRule {
 			//System.out.println("You move from outside the board??");
 			return false;
 		}
-		boolean playRightSide = squareId >= currentPlayer.getSide()*6 && squareId < (currentPlayer.getSide()+1)*6 - 1;
-		if (!playRightSide) {
-			//System.out.println("You play at the right side??");
+		if (squareId < currentPlayer.getSide().start() || squareId > currentPlayer.getSide().end()) {
 			return false;
 		}
-			
+		
 		if (!sq.canMove()) {
 			//System.out.println("Wrong square");
 			return false;
@@ -27,7 +26,10 @@ public class StandardRule implements GameRule {
 		return true;
 	}
 	@Override
-	public boolean isGameOver(Board board) {
-		return board.areMandarinsEmpty();
+	public boolean isGameOver(OAnQuanGame game) {
+		boolean firstScenario = game.getBoard().areMandarinsEmpty();
+		boolean secondScenario = (game.getPlayer1().getScore() + game.getPlayer2().getScore() < 5) 
+				&& game.getBoard().isSideEmpty(game.getCurrentPlayer().getSide());
+		return firstScenario || secondScenario;
 	}
 }

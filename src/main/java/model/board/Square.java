@@ -10,15 +10,11 @@ public abstract class Square {
 		this.smallStones = smallStones;
 		this.bigStones = bigStones;
 	}	
-	public int getId() {
-		return id;
-	}	
-	public int getSmallStones() {
-		return smallStones;
-	}
-	public int getBigStones() {
-		return bigStones;
-	}
+	
+	public int getId() { return id; }	
+	public int getSmallStones() { return smallStones; }
+	public int getBigStones() { return bigStones; }
+	
 	public void setSmallStones(int amount) {
 		this.smallStones = amount;
 	}

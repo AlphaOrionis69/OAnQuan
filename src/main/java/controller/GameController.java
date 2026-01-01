@@ -13,16 +13,18 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
+import model.game.Direction;
+import model.game.Move;
 import model.game.OAnQuanGame;
-import model.players.Move;
-import view.Arrow;
-import view.BoardView;
-import view.CitizenSquareView;
-import view.DirectionControlView;
-import view.HandView;
-import view.MessageOverlay;
-import view.SquareView;
-import view.StatusView;
+import model.players.PlayerSide;
+import view.board.BoardView;
+import view.board.CitizenSquareView;
+import view.board.SquareView;
+import view.component.StatusView;
+import view.control.Arrow;
+import view.control.DirectionControlView;
+import view.control.HandView;
+import view.overlay.MessageOverlay;
 
 public class GameController {
 	@FXML private AnchorPane rootPane;
@@ -108,7 +110,7 @@ public class GameController {
 	
 	private void createOverlay() {
 		msgOverlay = new MessageOverlay();
-		msgOverlay.getButton().setOnAction(e -> closeOverlay());
+		msgOverlay.getButton().setOnAction(e -> msgOverlay.setVisible(false));
 	}
 	
 	private void createAnimator() {
@@ -124,10 +126,12 @@ public class GameController {
 	private void handleArrowClick(MouseEvent e) {
 		if (selectedSquareId == -1) return;
 		Arrow arrow = (Arrow)(e.getSource());
-		boolean isLeftDirection = arrow == arrowView.getLeftArrow(); boolean isClockwise;
-		if (selectedSquareId >= 0 && selectedSquareId <= 4) isClockwise = !isLeftDirection;
-		else isClockwise = isLeftDirection;
-		processMove(isClockwise);
+		boolean isLeftDirection = arrow == arrowView.getLeftArrow(); Direction direction;
+		if (selectedSquareId >= PlayerSide.BOTTOM.start() && selectedSquareId <= PlayerSide.BOTTOM.end()) {
+			direction = Direction.fromBoolean(!isLeftDirection);
+		}
+		else direction = Direction.fromBoolean(isLeftDirection);
+		processMove(direction);
 	}
 	
 	private void handleSquareEnter(SquareView sv) {
@@ -180,9 +184,9 @@ public class GameController {
 		arrowView.hide();
 	}
 
-	private void processMove(boolean isClockwise) {
+	private void processMove(Direction direction) {
 		if (selectedSquareId == -1) return;	
-		Move move = new Move(selectedSquareId, isClockwise);
+		Move move = new Move(selectedSquareId, direction);
 		List<GameEvent> events = game.move(move);		
 		deselect();
 		animator.animate(events, () -> {
@@ -190,10 +194,6 @@ public class GameController {
 				handleSquareEnter(squareViews.get(enteredSquareId));
 			}
 		});
-	}
-	
-	public void closeOverlay() {
-		msgOverlay.setVisible(false);
 	}
 	@FXML
 	public void handleBack() {

@@ -6,7 +6,5 @@ public class StopEvent extends GameEvent {
 	public StopEvent(int lastSquareId) {
 		this.lastSquareId = lastSquareId;
 	}
-	public int getLastSquareId() {
-		return lastSquareId;
-	}
+	public int getLastSquareId() { return lastSquareId; }
 }

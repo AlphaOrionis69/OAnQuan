@@ -13,15 +13,7 @@ public class CaptureEvent extends GameEvent {
 		this.player = player;
 	}
 
-	public int getSquareId() {
-		return squareId;
-	}
-
-	public int getAmountCaptured() {
-		return amountCaptured;
-	}
-
-	public Player getPlayer() {
-		return player;
-	}
+	public int getSquareId() { return squareId; }
+	public int getAmountCaptured() { return amountCaptured; }
+	public Player getPlayer() { return player; }
 }

@@ -1,12 +1,12 @@
 package model.test;
 
 import java.util.List;
-
 import java.util.Scanner;
 
 import model.events.GameEvent;
+import model.game.Direction;
+import model.game.Move;
 import model.game.OAnQuanGame;
-import model.players.Move;
 
 public class GameTest {
 
@@ -25,10 +25,10 @@ public class GameTest {
 					int id = s.nextInt(); String turn = s.next(); Move move;
 					if (turn.equals("ccw")) {
 						// wrap it
-						move = new Move(id, false);
+						move = new Move(id, Direction.COUNTER_CLOCKWISE);
 					}
 					else if (turn.equals("cw")) {
-						move = new Move(id, true);
+						move = new Move(id, Direction.CLOCKWISE);
 					}
 					else {
 						System.out.println("Invalid direction");
