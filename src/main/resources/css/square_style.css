@@ -41,9 +41,11 @@
 }
 
 .score-text {
-    -fx-fill: #5c4033; 
+    -fx-text-fill: #ffffff; 
+    -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-font-family: "Segoe UI", sans-serif;
+    -fx-effect: dropshadow(one-pass-box, black, 2, 0, 0, 0);
 }
 
 .arrow-hover {

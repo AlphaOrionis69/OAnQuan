@@ -76,6 +76,7 @@ public class GameAnimator {
 		}
 		timeline.setOnFinished(ev -> {
 			isAnimating = false;
+			handView.hide();
 			onFinished.run();
 		});
 		timeline.play();
@@ -122,13 +123,13 @@ public class GameAnimator {
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			handView.moveHandTo(sv);
 			handView.animateFull();
-			sv.highlight(true);
+			sv.highlight();
 		});
 		delayTime += DELAY_AFTER_MOVING_HAND;
 		
 		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			sv.clearVisualStones();
-			sv.highlight(false);
+			sv.clearHighlight();
 	
 			statusView.updateScore(e.getAmountCaptured(), e.getPlayer());
 		});

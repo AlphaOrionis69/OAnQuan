@@ -9,6 +9,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Font;
 import javafx.util.Duration;
 import view.board.SquareView;
 
@@ -32,8 +33,8 @@ public class HandView extends StackPane {
 		handVisual.setStroke(Color.BLACK);	
 		
 		handLabel = new Label("0");
-		handLabel.setStyle("-fx-font-weight:bold;");
-		handLabel.setTextFill(Color.BLACK);	
+		handLabel.setFont(new Font("System Bold", 14));
+		handLabel.setTextFill(Color.WHITE);	
 		
 		handImage.setPreserveRatio(true);
 		handImage.setFitWidth(2*RADIUS);
@@ -47,7 +48,7 @@ public class HandView extends StackPane {
 			handLabel.setVisible(false);
 		}
 		catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(e.getMessage());
 			animationEnabled = false;
 			handImage.setVisible(false);
 			handVisual.setVisible(true);
@@ -55,9 +56,8 @@ public class HandView extends StackPane {
 		}
 		
 		this.getChildren().addAll(handVisual, handImage, handLabel);
-		
 		createFromOpenToCloseAnimation();
-		createFromBetweenToCloseAnimation();
+		createFromBetweenToCloseAnimation();	
 		hide();
 	}
 	public void addAmount(int amount) {

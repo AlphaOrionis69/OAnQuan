@@ -1,15 +1,12 @@
 package controller;
 
 import java.util.List;
-
 import java.util.Map;
-
 import model.events.*;
 import javafx.application.Platform;
-
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
@@ -21,9 +18,10 @@ import view.board.BoardView;
 import view.board.CitizenSquareView;
 import view.board.SquareView;
 import view.component.StatusView;
-import view.control.Arrow;
 import view.control.DirectionControlView;
 import view.control.HandView;
+import view.control.arrow.ArrowDirection;
+import view.control.arrow.HighlightableArrowView;
 import view.overlay.MessageOverlay;
 
 public class GameController {
@@ -71,7 +69,7 @@ public class GameController {
 		AnchorPane.setBottomAnchor(msgOverlay, 0.0); AnchorPane.setTopAnchor(msgOverlay, 0.0); 
 		AnchorPane.setLeftAnchor(msgOverlay, 0.0); AnchorPane.setRightAnchor(msgOverlay, 0.0);
 		
-		statusView.syncScore(game); statusView.syncTurn(game); boardView.syncBoard(game);   
+		statusView.syncScore(game); statusView.syncTurn(game); boardView.syncBoard(game);
 	}
 	private void createStatusView() {
 		statusView = new StatusView();
@@ -94,16 +92,16 @@ public class GameController {
 	private void createDirectionArrows() {
 		arrowView = new DirectionControlView();
 		
-		arrowView.getRightArrow().setOnMouseClicked(e -> handleArrowClick(e));
-		arrowView.getLeftArrow().setOnMouseClicked(e -> handleArrowClick(e));
+		wireArrow(arrowView.getLeftArrow());
+		wireArrow(arrowView.getRightArrow());
 		
-		arrowView.getRightArrow().setOnMouseEntered(e -> handleArrowEnter(e));
-		arrowView.getLeftArrow().setOnMouseEntered(e -> handleArrowEnter(e));
-		
-		arrowView.getRightArrow().setOnMouseExited(e -> handleArrowExit(e));
-		arrowView.getLeftArrow().setOnMouseExited(e -> handleArrowExit(e));	
+		arrowView.setOnKeyPressed(ev -> handleKeyPressedForArrow(ev));
 	}
-	
+	private void wireArrow(HighlightableArrowView arrow) {
+		arrow.getNode().setOnMouseClicked(e -> handleArrowClick(arrow));
+		arrow.getNode().setOnMouseEntered(e -> handleArrowEnter(arrow));
+		arrow.getNode().setOnMouseExited(e -> handleArrowExit(arrow));
+	}
 	private void createHand() {
 		handView = new HandView();
 	}
@@ -117,23 +115,27 @@ public class GameController {
 		animator = new GameAnimator(statusView, handView, msgOverlay, boardView, game);
 	}
 	
-	private void handleArrowEnter(MouseEvent e) {
-		((Arrow)(e.getSource())).highlight(true);
+	private void handleArrowEnter(HighlightableArrowView arrow) {
+		arrow.highlight();
 	}
-	private void handleArrowExit(MouseEvent e) {
-		((Arrow)(e.getSource())).highlight(false);
+	private void handleArrowExit(HighlightableArrowView arrow) {
+		arrow.clearHighlight();
 	}
-	private void handleArrowClick(MouseEvent e) {
+	private void handleArrowClick(HighlightableArrowView arrow) {
 		if (selectedSquareId == -1) return;
-		Arrow arrow = (Arrow)(e.getSource());
-		boolean isLeftDirection = arrow == arrowView.getLeftArrow(); Direction direction;
-		if (selectedSquareId >= PlayerSide.BOTTOM.start() && selectedSquareId <= PlayerSide.BOTTOM.end()) {
-			direction = Direction.fromBoolean(!isLeftDirection);
-		}
-		else direction = Direction.fromBoolean(isLeftDirection);
-		processMove(direction);
+		Direction direction = interpretDirectionInput(arrow.getArrowDirection());
+		if (direction != null) processMove(direction);
 	}
-	
+	// this function interpret the left right direction for the model to understand
+	private Direction interpretDirectionInput(ArrowDirection arrowDirection) {
+		if (selectedSquareId == -1) return null; 
+		Direction direction;
+		if (selectedSquareId >= PlayerSide.BOTTOM.start() && selectedSquareId <= PlayerSide.BOTTOM.end()) {
+			direction = Direction.fromBoolean(arrowDirection.opposite().toBoolean());
+		}
+		else direction = Direction.fromBoolean(arrowDirection.toBoolean());
+		return direction;		
+	}
 	private void handleSquareEnter(SquareView sv) {
 		enteredSquareId = sv.getSquareId();
 		if (animator.isAnimating() || game.isGameOver()) return;
@@ -141,7 +143,7 @@ public class GameController {
 		if (!game.getRule().isValidMove(game.getBoard(), squareId, game.getCurrentPlayer())) {
 			return;
 		}		
-		sv.highlight(true);
+		sv.highlight();
 	}
 	private void handleSquareExit(SquareView sv) {
 		enteredSquareId = -1;
@@ -151,7 +153,7 @@ public class GameController {
 			return;
 		}	
 		if (squareId != selectedSquareId) {
-			sv.highlight(false);
+			sv.clearHighlight();
 		}
 	}
 	private void handleSquareClick(SquareView sv) {
@@ -170,25 +172,41 @@ public class GameController {
 		deselect(); 
 		selectedSquareId = squareId;
 		
-		sv.highlight(true);
+		sv.highlight();
 		arrowView.attachTo(sv);
 		arrowView.show();
+		
+		arrowView.requestFocus();
 	}
-	
+	private void handleKeyPressedForArrow(KeyEvent event) {
+		if (selectedSquareId != -1 && !animator.isAnimating() && arrowView.isVisible()) {
+			if (event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.A) {
+				processMove(interpretDirectionInput(ArrowDirection.LEFT));
+			}
+			else if (event.getCode() == KeyCode.RIGHT || event.getCode() == KeyCode.D) {
+				processMove(interpretDirectionInput(ArrowDirection.RIGHT));
+			}
+			else if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.ENTER) {
+				deselect();
+			}
+		}
+	}
 	private void deselect() {
 		if (selectedSquareId != -1) {
-			squareViews.get(selectedSquareId).highlight(false);
+			if (selectedSquareId != enteredSquareId) squareViews.get(selectedSquareId).clearHighlight();
 			selectedSquareId = -1;
 		}
+		
 		arrowView.detach();
 		arrowView.hide();
 	}
 
 	private void processMove(Direction direction) {
-		if (selectedSquareId == -1) return;	
-		Move move = new Move(selectedSquareId, direction);
+		if (selectedSquareId == -1) return;
+		
+		Move move = new Move(selectedSquareId, direction);		
+		deselect(); if (enteredSquareId != -1) squareViews.get(enteredSquareId).clearHighlight();
 		List<GameEvent> events = game.move(move);		
-		deselect();
 		animator.animate(events, () -> {
 			if (enteredSquareId != -1) {
 				handleSquareEnter(squareViews.get(enteredSquareId));

@@ -32,7 +32,7 @@ public class Board {
 		if (id >= 0 && id < squares.size()) {
 			return squares.get(id);
 		}
-		System.out.println("The square did not exist?");
+		System.out.println("Board: The square did not exist?");
 		return null;
 	}
 

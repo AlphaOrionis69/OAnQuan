@@ -3,6 +3,7 @@ package view.board;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
+import model.board.Board;
 
 
 public class MandarinSquareView extends SquareView {
@@ -11,17 +12,17 @@ public class MandarinSquareView extends SquareView {
 		super(squareId);
 		double doubleHeight = CELL_HEIGHT * 2;
 		this.setPrefHeight(doubleHeight);
-		backgroundLayer.setPrefHeight(doubleHeight);	
-		stoneLayer.setLayoutY((doubleHeight - stoneLayer.getPrefHeight()) / 2);
-		
-		if (squareId == 11) { 
-			this.getStyleClass().add("mandarin-left");
-			countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.85)); 
-			countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.025)); 
+		getBackgroundLayer().setPrefHeight(doubleHeight);	
+		getStoneLayer().setLayoutY((doubleHeight - getStoneLayer().getPrefHeight()) / 2);
+		if (getStylesheets().contains(getCssURL())) {
+			this.getStyleClass().add(squareId == Board.LEFT_MANDARIN_ID ? "mandarin-left" : "mandarin-right");
+		}
+		if (squareId == Board.LEFT_MANDARIN_ID) { 
+			getCountLabel().layoutXProperty().bind(this.widthProperty().multiply(0.85)); 
+			getCountLabel().layoutYProperty().bind(this.heightProperty().multiply(0.025)); 
 		} else { 
-			this.getStyleClass().add("mandarin-right");
-			countLabel.layoutXProperty().bind(this.widthProperty().multiply(0.05)); 
-			countLabel.layoutYProperty().bind(this.heightProperty().multiply(0.9));
+			getCountLabel().layoutXProperty().bind(this.widthProperty().multiply(0.05)); 
+			getCountLabel().layoutYProperty().bind(this.heightProperty().multiply(0.9));
 		}
 	}
 	
@@ -50,7 +51,7 @@ public class MandarinSquareView extends SquareView {
 			holder.setLength(180);
 		}
 		
-		backgroundLayer.getChildren().add(backgroundShape);
+		getBackgroundLayer().getChildren().add(backgroundShape);
 	}
 
 }
