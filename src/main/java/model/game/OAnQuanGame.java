@@ -87,7 +87,6 @@ public class OAnQuanGame {
 		
 		events.addAll(performMoveLogic(move.getSquareId(), move.getDirection()));
 		
-		// here to avoid mixing game-over reasons, push the check after switching turn, better to return reasons instead of booleans
 		if (currentPlayer == player1) currentPlayer = player2;
 		else currentPlayer = player1;
 		

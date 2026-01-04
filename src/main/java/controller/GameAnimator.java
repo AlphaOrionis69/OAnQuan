@@ -33,10 +33,10 @@ public class GameAnimator {
 	private final OAnQuanGame game;
 	private boolean isAnimating = false;
 	private static final double DELAY_AFTER_MOVING_HAND = 200;
-	private static final double DELAY_AFTER_PICKING_STONES = 300;
+	private static final double DELAY_AFTER_PICKING_STONES = 200;
 	private static final double DELAY_AFTER_DROPPING_STONES = 200;
 	private static final double DELAY_AFTER_SWITCHING_TURN = 100;
-	private static final double DELAY_AFTER_CAPTURING_STONES = 300;
+	private static final double DELAY_AFTER_CAPTURING_STONES = 200;
 	private static final double DELAY_BEFORE_DISTRIBUTING_STONES = 1500;
 	private static final double DELAY_BEFORE_CALCULATING_FINAL_SCORES = 1500;
 	private static final double DELAY_AFTER_CALCULATING_FINAL_SCORES = 1500;
@@ -84,13 +84,14 @@ public class GameAnimator {
 	private double animatePickUp(PickUpEvent e, Timeline timeline, double delayTime) {
 		SquareView sv = squareViews.get(e.getSquareId());
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			
 			handView.moveHandTo(sv);
 			handView.animateFull();
 		});
 		delayTime += DELAY_AFTER_MOVING_HAND;
 		
 		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
-					
+			
 			handView.addAmount(e.getAmountPickedUp());
 			sv.clearVisualStones();
 		});
@@ -102,13 +103,14 @@ public class GameAnimator {
 	private double animateDrop(DropEvent e, Timeline timeline, double delayTime) {
 		SquareView sv = squareViews.get(e.getSquareId());
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			
 			handView.moveHandTo(sv);
 			handView.animateHalf();
 		});
 		delayTime += DELAY_AFTER_MOVING_HAND;
 		
 		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
-				
+			
 			handView.decreaseAmount(e.getAmountDropped());
 			sv.addVisualStone();
 		});
@@ -121,6 +123,7 @@ public class GameAnimator {
 		SquareView sv = squareViews.get(e.getSquareId());
 		
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
+			
 			handView.moveHandTo(sv);
 			handView.animateFull();
 			sv.highlight();
@@ -130,7 +133,6 @@ public class GameAnimator {
 		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			sv.clearVisualStones();
 			sv.clearHighlight();
-	
 			statusView.updateScore(e.getAmountCaptured(), e.getPlayer());
 		});
 		delayTime += DELAY_AFTER_CAPTURING_STONES;

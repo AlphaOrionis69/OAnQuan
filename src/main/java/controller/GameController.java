@@ -123,52 +123,41 @@ public class GameController {
 	}
 	private void handleArrowClick(HighlightableArrowView arrow) {
 		if (selectedSquareId == -1) return;
-		Direction direction = interpretDirectionInput(arrow.getArrowDirection());
+		Direction direction = interpretDirectionInput(selectedSquareId, arrow.getArrowDirection());
 		if (direction != null) processMove(direction);
 	}
 	// this function interpret the left right direction for the model to understand
-	private Direction interpretDirectionInput(ArrowDirection arrowDirection) {
-		if (selectedSquareId == -1) return null; 
+	private Direction interpretDirectionInput(int squareId, ArrowDirection arrowDirection) {
+		if (squareId == -1) return null; 
 		Direction direction;
-		if (selectedSquareId >= PlayerSide.BOTTOM.start() && selectedSquareId <= PlayerSide.BOTTOM.end()) {
+		if (squareId >= PlayerSide.BOTTOM.start() && squareId <= PlayerSide.BOTTOM.end()) {
 			direction = Direction.fromBoolean(arrowDirection.opposite().toBoolean());
 		}
 		else direction = Direction.fromBoolean(arrowDirection.toBoolean());
 		return direction;		
 	}
-	private void handleSquareEnter(SquareView sv) {
-		enteredSquareId = sv.getSquareId();
-		if (animator.isAnimating() || game.isGameOver()) return;
+	private void handleSquareEnter(SquareView sv) {	
 		int squareId = sv.getSquareId();
-		if (!game.getRule().isValidMove(game.getBoard(), squareId, game.getCurrentPlayer())) {
-			return;
-		}		
+		enteredSquareId = squareId;
+		if (!canInteractWithSquare(squareId)) return;
 		sv.highlight();
 	}
 	private void handleSquareExit(SquareView sv) {
 		enteredSquareId = -1;
-		if (animator.isAnimating() || game.isGameOver()) return;
 		int squareId = sv.getSquareId();
-		if (!game.getRule().isValidMove(game.getBoard(), squareId, game.getCurrentPlayer())) {
-			return;
-		}	
+		if (!canInteractWithSquare(squareId)) return;
 		if (squareId != selectedSquareId) {
 			sv.clearHighlight();
 		}
 	}
 	private void handleSquareClick(SquareView sv) {
-		if (animator.isAnimating() || game.isGameOver()) return;
 		int squareId = sv.getSquareId();
+		if (!canInteractWithSquare(squareId)) return;
 		// choose the same square
 		if (selectedSquareId == squareId) {
 			deselect();
 			return;
 		}
-		// validate
-		if (!game.getRule().isValidMove(game.getBoard(), squareId, game.getCurrentPlayer())) {
-			return;
-		}
-
 		deselect(); 
 		selectedSquareId = squareId;
 		
@@ -181,10 +170,10 @@ public class GameController {
 	private void handleKeyPressedForArrow(KeyEvent event) {
 		if (selectedSquareId != -1 && !animator.isAnimating() && arrowView.isVisible()) {
 			if (event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.A) {
-				processMove(interpretDirectionInput(ArrowDirection.LEFT));
+				processMove(interpretDirectionInput(selectedSquareId, ArrowDirection.LEFT));
 			}
 			else if (event.getCode() == KeyCode.RIGHT || event.getCode() == KeyCode.D) {
-				processMove(interpretDirectionInput(ArrowDirection.RIGHT));
+				processMove(interpretDirectionInput(selectedSquareId, ArrowDirection.RIGHT));
 			}
 			else if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.ENTER) {
 				deselect();
@@ -212,6 +201,12 @@ public class GameController {
 				handleSquareEnter(squareViews.get(enteredSquareId));
 			}
 		});
+	}
+	private boolean canInteractWithSquare(int squareId) {
+		if (animator.isAnimating()) return false;
+		if (game.isGameOver()) return false;
+		if (!game.getRule().isValidMove(game.getBoard(), squareId, game.getCurrentPlayer())) return false;
+		return true;
 	}
 	@FXML
 	public void handleBack() {

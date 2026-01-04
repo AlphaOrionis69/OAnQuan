@@ -24,11 +24,11 @@ public class HandView extends StackPane {
 	private SquareView target = null;
 	private final Timeline fromOpenToCloseAnimation = new Timeline();
 	private final Timeline fromBetweenToCloseAnimation = new Timeline();
-	private static final double ANIMATION_LENGTH = 300;
-	public static final double RADIUS = 30;
+	private static final double HAND_ANIMATION_LENGTH = 300;
+	public static final double HAND_RADIUS = 30;
 	private boolean animationEnabled = true;
 	public HandView() {
-		handVisual = new Circle(RADIUS);
+		handVisual = new Circle(HAND_RADIUS);
 		handVisual.setFill(Color.SANDYBROWN);
 		handVisual.setStroke(Color.BLACK);	
 		
@@ -37,7 +37,7 @@ public class HandView extends StackPane {
 		handLabel.setTextFill(Color.WHITE);	
 		
 		handImage.setPreserveRatio(true);
-		handImage.setFitWidth(2*RADIUS);
+		handImage.setFitWidth(2*HAND_RADIUS);
 		
 		try {
 			handOpened = new Image(getClass().getResource("/image/hand_open.png").toExternalForm());
@@ -66,7 +66,7 @@ public class HandView extends StackPane {
 	}
 	public void decreaseAmount(int amount) {
 		if (handCount < amount) {
-			System.out.println("Hand is empty now??");
+			System.out.println("HandView: Hand is empty now??");
 		}
 		handCount -= amount;
 		handLabel.setText(String.valueOf(handCount));
@@ -80,7 +80,7 @@ public class HandView extends StackPane {
 	public void moveHandTo(SquareView sv) {
 		target = sv;
 		if (getParent() == null) {
-			System.out.println("Where is hand's parent?");
+			System.out.println("HandView: Where is hand's parent?");
 			return;
 		}
 		Point2D p = getParent().sceneToLocal(sv.localToScene(sv.getWidth()/2, sv.getHeight()/2));
@@ -106,10 +106,10 @@ public class HandView extends StackPane {
 		fromOpenToCloseAnimation.getKeyFrames().add(new KeyFrame(Duration.millis(0), ev -> {
 			handImage.setImage(handOpened);
 		}));
-		fromOpenToCloseAnimation.getKeyFrames().add(new KeyFrame(Duration.millis(ANIMATION_LENGTH/2), ev -> {
+		fromOpenToCloseAnimation.getKeyFrames().add(new KeyFrame(Duration.millis(HAND_ANIMATION_LENGTH/2), ev -> {
 			handImage.setImage(handBetween);
 		}));
-		fromOpenToCloseAnimation.getKeyFrames().add(new KeyFrame(Duration.millis(ANIMATION_LENGTH), ev -> {
+		fromOpenToCloseAnimation.getKeyFrames().add(new KeyFrame(Duration.millis(HAND_ANIMATION_LENGTH), ev -> {
 			handImage.setImage(handClosed);
 		}));
 	}
@@ -118,7 +118,7 @@ public class HandView extends StackPane {
 		fromBetweenToCloseAnimation.getKeyFrames().add(new KeyFrame(Duration.millis(0), ev -> {
 			handImage.setImage(handBetween);
 		}));
-		fromBetweenToCloseAnimation.getKeyFrames().add(new KeyFrame(Duration.millis(ANIMATION_LENGTH), ev -> {
+		fromBetweenToCloseAnimation.getKeyFrames().add(new KeyFrame(Duration.millis(HAND_ANIMATION_LENGTH), ev -> {
 			handImage.setImage(handClosed);
 		}));
 	}
@@ -132,5 +132,11 @@ public class HandView extends StackPane {
 		fromBetweenToCloseAnimation.play();
 		fromOpenToCloseAnimation.stop();
 	}
-
+	public void stopAnimate() {
+		fromOpenToCloseAnimation.stop();
+		fromBetweenToCloseAnimation.stop();
+	}
+	public double getHandAnimationLength() {
+		return animationEnabled ? HAND_ANIMATION_LENGTH : 0;
+	}
 }
