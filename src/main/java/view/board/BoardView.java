@@ -6,7 +6,6 @@ import model.game.OAnQuanGame;
 import model.players.PlayerSide;
 import javafx.geometry.Pos;
 import javafx.scene.layout.GridPane;
-import javafx.scene.layout.Region;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,14 +16,14 @@ public class BoardView extends GridPane {
 	private Map<Integer, SquareView> squareViews = new HashMap<>();
 	private final int spacing = 6;
 
-	public BoardView() {
+	public BoardView(List<Square> squares) {
 		setAlignment(Pos.CENTER);
-		setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 		setHgap(spacing); setVgap(spacing);
-		setStyle("-fx-border-width: 0;");
+		//setStyle("-fx-border-width: 0;");
+		init(squares);
 	}
 
-	public void init(List<Square> squares) {
+	private void init(List<Square> squares) {
 		this.getChildren().clear();
 		squareViews.clear();
 

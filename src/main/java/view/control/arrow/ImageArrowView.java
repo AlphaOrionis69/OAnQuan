@@ -36,6 +36,6 @@ public class ImageArrowView implements HighlightableArrowView {
 	}
 	@Override
 	public void clearHighlight() {
-		arrowVisual.setStyle("-fx-effect: null");
+		arrowVisual.setStyle("");
 	}
 }

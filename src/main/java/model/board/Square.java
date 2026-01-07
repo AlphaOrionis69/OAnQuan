@@ -15,12 +15,6 @@ public abstract class Square {
 	public int getSmallStones() { return smallStones; }
 	public int getBigStones() { return bigStones; }
 	
-	public void setSmallStones(int amount) {
-		this.smallStones = amount;
-	}
-	public void setBigStones(int amount) {
-		this.bigStones = amount;
-	}
 	public void addStones(int amount) {
 		this.smallStones += amount;
 	}
@@ -30,7 +24,7 @@ public abstract class Square {
 	}
 	
 	public int pickUpStones() {
-		int picked = smallStones + bigStones * 5;
+		int picked = calculatePoints();
 		smallStones = bigStones = 0;
 		return picked;
 	}

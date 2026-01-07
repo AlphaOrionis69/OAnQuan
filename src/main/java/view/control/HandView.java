@@ -6,6 +6,8 @@ import javafx.geometry.Point2D;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -13,7 +15,9 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 import view.board.SquareView;
 
-public class HandView extends StackPane {
+public class HandView extends Pane {
+	private StackPane container;
+	
 	private Label handLabel;
 	private Circle handVisual;
 	private ImageView handImage = new ImageView();
@@ -28,6 +32,8 @@ public class HandView extends StackPane {
 	public static final double HAND_RADIUS = 30;
 	private boolean animationEnabled = true;
 	public HandView() {
+		this.setMouseTransparent(false);
+		container = new StackPane();
 		handVisual = new Circle(HAND_RADIUS);
 		handVisual.setFill(Color.SANDYBROWN);
 		handVisual.setStroke(Color.BLACK);	
@@ -55,7 +61,8 @@ public class HandView extends StackPane {
 			handLabel.setVisible(true);
 		}
 		
-		this.getChildren().addAll(handVisual, handImage, handLabel);
+		container.getChildren().addAll(handVisual, handImage, handLabel);
+		this.getChildren().add(container);
 		createFromOpenToCloseAnimation();
 		createFromBetweenToCloseAnimation();	
 		hide();
@@ -79,12 +86,10 @@ public class HandView extends StackPane {
 	}
 	public void moveHandTo(SquareView sv) {
 		target = sv;
-		if (getParent() == null) {
-			System.out.println("HandView: Where is hand's parent?");
-			return;
-		}
-		Point2D p = getParent().sceneToLocal(sv.localToScene(sv.getWidth()/2, sv.getHeight()/2));
-		setLayoutX(p.getX() - handVisual.getRadius()); setLayoutY(p.getY() - handVisual.getRadius());
+		
+		Point2D p = this.sceneToLocal(sv.localToScene(sv.getWidth()/2, sv.getHeight()/2));
+		container.setLayoutX(p.getX() - container.getLayoutBounds().getWidth()/2); 
+		container.setLayoutY(p.getY() - container.getLayoutBounds().getHeight()/2);
 	}
 	public void reset() {
 		target = null;

@@ -16,7 +16,7 @@ public class Board {
 		initBoard();
 	}
 
-	public void initBoard() {
+	private void initBoard() {
 		for (int i = PlayerSide.BOTTOM.start(); i <= PlayerSide.BOTTOM.end(); i++) {
 			squares.add(new CitizenSquare(i, 5));
 		}

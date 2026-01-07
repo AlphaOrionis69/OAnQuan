@@ -133,7 +133,7 @@ public class GameAnimator {
 		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			sv.clearVisualStones();
 			sv.clearHighlight();
-			statusView.updateScore(e.getAmountCaptured(), e.getPlayer());
+			statusView.updateScore(e.getAmountCaptured(), e.getSide());
 		});
 		delayTime += DELAY_AFTER_CAPTURING_STONES;
 		
@@ -143,8 +143,8 @@ public class GameAnimator {
 	private double animateDistribute(DistributeEvent e, Timeline timeline, double delayTime) {
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			msgOverlay.setTitle("Distribution");
-			if (e.isLending()) msgOverlay.setContent(e.getPlayer().getName() + " lends stones from other player to distribute");
-			else msgOverlay.setContent(e.getPlayer().getName() + " distributes stones.");
+			if (e.isLending()) msgOverlay.setContent(e.getName() + " lends stones from other player to distribute");
+			else msgOverlay.setContent(e.getName() + " distributes stones.");
 			msgOverlay.setVisible(true);
 		});
 		
@@ -152,14 +152,14 @@ public class GameAnimator {
 		KeyFrame kf2 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			msgOverlay.setVisible(false);
 			handView.hide();
-			int start = e.getPlayer().getSide().start();
-			int end = e.getPlayer().getSide().end();
+			int start = e.getSide().start();
+			int end = e.getSide().end();
 			for (int i = start; i <= end; i++) {
 				squareViews.get(i).addVisualStone();
 			}
-			Player otherPlayer = e.getPlayer() == game.getPlayer1() ? game.getPlayer2() : game.getPlayer1();
-			statusView.updateScore(-e.getAmountLent(), otherPlayer);			
-			statusView.updateScore(-(5*e.getAmountPerSquare() - e.getAmountLent()), e.getPlayer());
+			//Player otherPlayer = e.getPlayer() == game.getPlayer1() ? game.getPlayer2() : game.getPlayer1();
+			statusView.updateScore(-e.getAmountLent(), e.getSide().opposite());			
+			statusView.updateScore(-(5*e.getAmountPerSquare() - e.getAmountLent()), e.getSide());
 		});
 		
 		timeline.getKeyFrames().addAll(kf1, kf2);
@@ -167,7 +167,7 @@ public class GameAnimator {
 	}
 	private double animateSwitchTurn(SwitchTurnEvent e, Timeline timeline, double delayTime) {
 		KeyFrame kf = new KeyFrame(Duration.millis(delayTime), ev -> {
-			statusView.updateTurn(e.getNewPlayer());
+			statusView.updateTurn(e.getNewPlayerName());
 		});
 		delayTime += DELAY_AFTER_SWITCHING_TURN;
 		

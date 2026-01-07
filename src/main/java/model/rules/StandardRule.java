@@ -1,21 +1,23 @@
 package model.rules;
 
 import model.board.Board;
+
 import model.board.MandarinSquare;
 import model.board.Square;
 import model.game.OAnQuanGame;
 import model.players.Player;
+import model.players.PlayerSide;
 
 public class StandardRule implements GameRule {
 	// uncomment if run CLI version
 	@Override
-	public boolean isValidMove(Board board, int squareId, Player currentPlayer) {
+	public boolean isValidMove(Board board, int squareId, PlayerSide currentSide) {
 		Square sq = board.getSquare(squareId);
 		if (sq == null) {
 			//System.out.println("You move from outside the board??");
 			return false;
 		}
-		if (squareId < currentPlayer.getSide().start() || squareId > currentPlayer.getSide().end()) {
+		if (squareId < currentSide.start() || squareId > currentSide.end()) {
 			return false;
 		}
 		

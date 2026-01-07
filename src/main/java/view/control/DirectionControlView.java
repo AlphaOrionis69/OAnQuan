@@ -13,7 +13,7 @@ import view.control.arrow.ShapeArrowView;
 public class DirectionControlView extends Pane{
 	private HighlightableArrowView leftArrow, rightArrow;
 	private SquareView target = null;
-	public static final double GAP_BETWEEN_ARROW_AND_SQUARE = 25;
+	public static final double GAP_BETWEEN_ARROW_AND_SQUARE = 25; // approximately
 	public DirectionControlView() {
 		try {
 			ImageArrowView newLeftArrow = new ImageArrowView("/image/left-arrow.png", ArrowDirection.LEFT);

@@ -1,19 +1,19 @@
 package model.events;
 
-import model.players.Player;
+import model.players.PlayerSide;
 
 public class CaptureEvent extends GameEvent {
 	private int squareId;
 	private int amountCaptured;
-	private Player player;
+	private PlayerSide side;
 	
-	public CaptureEvent(int squareId, int amountCaptured, Player player) {
+	public CaptureEvent(int squareId, int amountCaptured, PlayerSide side) {
 		this.squareId = squareId;
 		this.amountCaptured = amountCaptured;
-		this.player = player;
+		this.side = side;
 	}
 
 	public int getSquareId() { return squareId; }
 	public int getAmountCaptured() { return amountCaptured; }
-	public Player getPlayer() { return player; }
+	public PlayerSide getSide() { return side; }
 }

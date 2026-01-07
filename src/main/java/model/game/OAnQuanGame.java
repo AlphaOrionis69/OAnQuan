@@ -23,20 +23,20 @@ public class OAnQuanGame {
 		startNewGame("Player 1", "Player 2");
 	}
 	
-	public void startNewGame(String p1Name, String p2Name) {
+	private void startNewGame(String p1Name, String p2Name) {
 		board = new Board();
 		rule = new StandardRule();
 		player1 = new Player(p1Name, PlayerSide.BOTTOM);
 		player2 = new Player(p2Name, PlayerSide.TOP);
-		player1.setScore(0);
-		player2.setScore(0);
+		player1.resetScore();
+		player2.resetScore();
 		currentPlayer = player1;
 		isGameOver = false;		
 		
 		penalty = 0;
 	}
 	
-	public void endGame() {
+	private void endGame() {
 		if (!isGameOver) return;
 		player1.addScore(penalty);
 		player2.decreaseScore(penalty);
@@ -45,7 +45,7 @@ public class OAnQuanGame {
 		for (int i = PlayerSide.TOP.start(); i <= PlayerSide.TOP.end(); i++) player2.addScore(board.getSquare(i).pickUpStones());
 	}
 	
-	public List<GameEvent> checkAndDistribute() {
+	private List<GameEvent> checkAndDistribute() {
 		if (isGameOver) return new ArrayList<>();
 		
 		int startIdx = currentPlayer.getSide().start();
@@ -68,10 +68,10 @@ public class OAnQuanGame {
 					penalty += amountLent;
 					player1.decreaseScore(amountLent);
 				}
-				currentPlayer.setScore(0);
+				currentPlayer.resetScore();
 			}
 			
-			events.add(new DistributeEvent(currentPlayer, isLending, amountLent, 1));
+			events.add(new DistributeEvent(currentPlayer.getSide(), currentPlayer.getName(), isLending, amountLent, 1));
 			
 			for (int i = startIdx; i <= endIdx; i++) {
 				board.getSquare(i).addStones(1);
@@ -81,7 +81,7 @@ public class OAnQuanGame {
 	}
 	
 	public List<GameEvent> move(Move move) {
-		if (!rule.isValidMove(board, move.getSquareId(), currentPlayer)) return null;
+		if (!rule.isValidMove(board, move.getSquareId(), currentPlayer.getSide())) return null;
 		
 		List<GameEvent> events = new ArrayList<>();
 		
@@ -90,7 +90,7 @@ public class OAnQuanGame {
 		if (currentPlayer == player1) currentPlayer = player2;
 		else currentPlayer = player1;
 		
-		events.add(new SwitchTurnEvent(currentPlayer));
+		events.add(new SwitchTurnEvent(currentPlayer.getName()));
 		
 		if (rule.isGameOver(this)) {
 			isGameOver = true;
@@ -142,7 +142,7 @@ public class OAnQuanGame {
 						} else {
 							int captured = targetSquare.pickUpStones();
 							currentPlayer.addScore(captured);
-							events.add(new CaptureEvent(targetIdx, captured, currentPlayer));
+							events.add(new CaptureEvent(targetIdx, captured, currentPlayer.getSide()));
 							
 							int checkIdx = board.getNextIdx(targetIdx, direction);
 							if (board.getSquare(checkIdx) instanceof MandarinSquare) break;

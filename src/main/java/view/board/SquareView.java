@@ -22,11 +22,11 @@ public abstract class SquareView extends Pane implements Highlightable{
 	protected Shape backgroundShape;
 	public static final double CELL_WIDTH = 120.0;
 	public static final double CELL_HEIGHT = 120.0;
-	public static final double CONTAINER_SIZE = 90.0;
+	public static final double CONTAINER_SIZE = 80.0;
 	public static final double BIG_STONE_RADIUS = 12.0;
 	public static final double SMALL_STONE_RADIUS = 5.0;
 	private Random random = new Random();
-	private static final int MAX_REROLL = 100;
+	private static final int MAX_REROLL = 200;
 	private String cssURL = null; 
 	public SquareView(int squareId) {
 		this.squareId = squareId;

@@ -1,13 +1,14 @@
 package model.events;
 
 import model.players.Player;
+import model.players.PlayerSide;
 
 public class SwitchTurnEvent extends GameEvent {
-	private Player newPlayer;
-	public Player getNewPlayer() {
-		return newPlayer;
+	private String newPlayerName;
+	public String getNewPlayerName() {
+		return newPlayerName;
 	}
-	public SwitchTurnEvent(Player newPlayer) {
-		this.newPlayer = newPlayer;
+	public SwitchTurnEvent(String newPlayerName) {
+		this.newPlayerName = newPlayerName;
 	}
 }

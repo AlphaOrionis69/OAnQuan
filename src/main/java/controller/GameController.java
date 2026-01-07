@@ -76,9 +76,8 @@ public class GameController {
 	}
 	
 	private void createBoard() {
-		boardView = new BoardView();
+		boardView = new BoardView(game.getBoard().getSquares());
 		squareViews = boardView.getAllViews();
-		boardView.init(game.getBoard().getSquares());	
 		for (Map.Entry<Integer, SquareView> entry : squareViews.entrySet()) {
 			SquareView sv = entry.getValue();
 			if (sv instanceof CitizenSquareView) {
@@ -205,7 +204,7 @@ public class GameController {
 	private boolean canInteractWithSquare(int squareId) {
 		if (animator.isAnimating()) return false;
 		if (game.isGameOver()) return false;
-		if (!game.getRule().isValidMove(game.getBoard(), squareId, game.getCurrentPlayer())) return false;
+		if (!game.getRule().isValidMove(game.getBoard(), squareId, game.getCurrentPlayer().getSide())) return false;
 		return true;
 	}
 	@FXML

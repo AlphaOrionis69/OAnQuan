@@ -24,9 +24,6 @@ public class Player {
 	public void decreaseScore(int points) {
 		this.score -= points;
 	}
-	public void setScore(int points) {
-		this.score = points;
-	}
 	public void resetScore() {
 		this.score = 0;
 	}
