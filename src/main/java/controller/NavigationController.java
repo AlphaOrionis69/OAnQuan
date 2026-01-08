@@ -35,14 +35,14 @@ public class NavigationController {
 	}
 	public void showMainMenu() {
 		stage.setMinWidth(600); stage.setMinHeight(300);
-		NavigationController.getInstance().navigateTo("/view/MainMenu.fxml", "O An Quan - Menu");
+		NavigationController.getInstance().navigateTo("/view/screens/MainMenu.fxml", "O An Quan - Menu");
 	}
 	public void showHelpScreen() {
 		stage.setMinWidth(500); stage.setMinHeight(300);
-		NavigationController.getInstance().navigateTo("/view/HelpScreen.fxml", "O An Quan - Help");
+		NavigationController.getInstance().navigateTo("/view/screens/HelpScreen.fxml", "O An Quan - Help");
 	}
 	public void showGameScreen() {
 		stage.setMinWidth(950); stage.setMinHeight(600);
-		NavigationController.getInstance().navigateTo("/view/GameScreen.fxml", "O An Quan - Playing");
+		NavigationController.getInstance().navigateTo("/view/screens/GameScreen.fxml", "O An Quan - Playing");
 	}
 }
