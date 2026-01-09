@@ -2,14 +2,14 @@ package model.events;
 
 import model.players.PlayerSide;
 
-public class DistributeEvent extends GameEvent {
+public class SideRefilled extends ModelChange {
 	private PlayerSide side;
 	private String name;
 	private boolean isLending;
 	private int amountLent;
 	private int amountPerSquare;
 	
-	public DistributeEvent(PlayerSide side, String name, boolean isLending, int amountLent, int amountPerSquare) {
+	public SideRefilled(PlayerSide side, String name, boolean isLending, int amountLent, int amountPerSquare) {
 		this.side = side;
 		this.name = name;
 		this.isLending = isLending;

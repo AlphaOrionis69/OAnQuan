@@ -24,6 +24,13 @@ import view.control.arrow.ArrowDirection;
 import view.control.arrow.HighlightableArrowView;
 import view.overlay.MessageOverlay;
 
+/*
+ * It’s hard to split Arrow and Square logic because the arrow isn’t an independent thing. 
+ * It only shows up after a square is clicked, and clicking an arrow immediately sends the direction 
+ * to the model and ends the interaction. At that point, both the arrow and the square selection disappear. 
+ * If they were handled by separate controllers, they would have to constantly talk to each other, 
+ * which would just create tight coupling without making the code easier to understand.
+*/
 public class GameController {
 	@FXML private AnchorPane rootPane;
 	@FXML private BorderPane containerPane;
@@ -169,10 +176,12 @@ public class GameController {
 	private void handleKeyPressedForArrow(KeyEvent event) {
 		if (selectedSquareId != -1 && !animator.isAnimating() && arrowView.isVisible()) {
 			if (event.getCode() == KeyCode.LEFT || event.getCode() == KeyCode.A) {
-				processMove(interpretDirectionInput(selectedSquareId, ArrowDirection.LEFT));
+				Direction direction = interpretDirectionInput(selectedSquareId, ArrowDirection.LEFT);
+				if (direction != null) processMove(direction); // guard
 			}
 			else if (event.getCode() == KeyCode.RIGHT || event.getCode() == KeyCode.D) {
-				processMove(interpretDirectionInput(selectedSquareId, ArrowDirection.RIGHT));
+				Direction direction = interpretDirectionInput(selectedSquareId, ArrowDirection.RIGHT);
+				if (direction != null) processMove(direction); // guard
 			}
 			else if (event.getCode() == KeyCode.SPACE || event.getCode() == KeyCode.ENTER) {
 				deselect();
@@ -190,11 +199,12 @@ public class GameController {
 	}
 
 	private void processMove(Direction direction) {
-		if (selectedSquareId == -1) return;
+		if (selectedSquareId == -1 || direction == null) return;
 		
 		Move move = new Move(selectedSquareId, direction);		
 		deselect(); if (enteredSquareId != -1) squareViews.get(enteredSquareId).clearHighlight();
-		List<GameEvent> events = game.move(move);		
+		List<ModelChange> events = game.move(move);
+		if (events == null) return; // guard
 		animator.animate(events, () -> {
 			if (enteredSquareId != -1) {
 				handleSquareEnter(squareViews.get(enteredSquareId));

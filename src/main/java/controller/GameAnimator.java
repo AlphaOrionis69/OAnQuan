@@ -6,13 +6,14 @@ import java.util.Map;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.util.Duration;
-import model.events.CaptureEvent;
-import model.events.DistributeEvent;
-import model.events.DropEvent;
-import model.events.GameEvent;
-import model.events.PickUpEvent;
-import model.events.StopEvent;
-import model.events.SwitchTurnEvent;
+import model.events.StonesCaptured;
+import model.events.SideRefilled;
+import model.events.StonesDropped;
+import model.events.GameEnded;
+import model.events.ModelChange;
+import model.events.StonesPickedUp;
+import model.events.MoveEnded;
+import model.events.TurnSwitched;
 import model.game.OAnQuanGame;
 import model.players.Player;
 import view.board.BoardView;
@@ -52,27 +53,30 @@ public class GameAnimator {
 	public boolean isAnimating() {
 		return isAnimating;
 	}
-	public void animate(List<GameEvent> events, Runnable onFinished) {
+	public void animate(List<ModelChange> events, Runnable onFinished) {
 		if (events == null) return;
 		Timeline timeline = new Timeline();
 		double delayTime = 0;
 		isAnimating = true;
 		handView.show();
 		//handView.open();
-		for (GameEvent event : events) {	
-			if (event instanceof PickUpEvent) {
-				delayTime = animatePickUp((PickUpEvent)event, timeline, delayTime);		
-			} else if (event instanceof DropEvent) {
-				delayTime = animateDrop((DropEvent)event, timeline, delayTime);	
-			} else if (event instanceof CaptureEvent) {
-				delayTime = animateCapture((CaptureEvent)event, timeline, delayTime);		
-			} else if (event instanceof DistributeEvent) {			
-				delayTime = animateDistribute((DistributeEvent)event, timeline, delayTime);	
-			} else if (event instanceof SwitchTurnEvent) {
-				delayTime = animateSwitchTurn((SwitchTurnEvent)event, timeline, delayTime);		
-			} else if (event instanceof StopEvent) {
-				delayTime = animateStop((StopEvent)event, timeline, delayTime);	
-			}		
+		for (ModelChange event : events) {	
+			if (event instanceof StonesPickedUp) {
+				delayTime = animatePickUp((StonesPickedUp)event, timeline, delayTime);		
+			} else if (event instanceof StonesDropped) {
+				delayTime = animateDrop((StonesDropped)event, timeline, delayTime);	
+			} else if (event instanceof StonesCaptured) {
+				delayTime = animateCapture((StonesCaptured)event, timeline, delayTime);
+			} else if (event instanceof SideRefilled) {			
+				delayTime = animateDistribute((SideRefilled)event, timeline, delayTime);	
+			} else if (event instanceof TurnSwitched) {
+				delayTime = animateSwitchTurn((TurnSwitched)event, timeline, delayTime);
+			} else if (event instanceof MoveEnded) {
+				delayTime = animateStop((MoveEnded)event, timeline, delayTime);	
+			} else if (event instanceof GameEnded) {
+				delayTime = animateGameOver((GameEnded)event, timeline, delayTime);
+			}
+			
 		}
 		timeline.setOnFinished(ev -> {
 			isAnimating = false;
@@ -81,7 +85,7 @@ public class GameAnimator {
 		});
 		timeline.play();
 	}
-	private double animatePickUp(PickUpEvent e, Timeline timeline, double delayTime) {
+	private double animatePickUp(StonesPickedUp e, Timeline timeline, double delayTime) {
 		SquareView sv = squareViews.get(e.getSquareId());
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			
@@ -100,7 +104,7 @@ public class GameAnimator {
 		timeline.getKeyFrames().addAll(kf1, kf2);
 		return delayTime;
 	}
-	private double animateDrop(DropEvent e, Timeline timeline, double delayTime) {
+	private double animateDrop(StonesDropped e, Timeline timeline, double delayTime) {
 		SquareView sv = squareViews.get(e.getSquareId());
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			
@@ -119,7 +123,7 @@ public class GameAnimator {
 		timeline.getKeyFrames().addAll(kf1, kf2);
 		return delayTime;
 	}
-	private double animateCapture(CaptureEvent e, Timeline timeline, double delayTime) {
+	private double animateCapture(StonesCaptured e, Timeline timeline, double delayTime) {
 		SquareView sv = squareViews.get(e.getSquareId());
 		
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
@@ -140,7 +144,7 @@ public class GameAnimator {
 		timeline.getKeyFrames().addAll(kf1, kf2);
 		return delayTime;
 	}
-	private double animateDistribute(DistributeEvent e, Timeline timeline, double delayTime) {
+	private double animateDistribute(SideRefilled e, Timeline timeline, double delayTime) {
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			msgOverlay.setTitle("Distribution");
 			if (e.isLending()) msgOverlay.setContent(e.getName() + " lends stones from other player to distribute");
@@ -165,7 +169,7 @@ public class GameAnimator {
 		timeline.getKeyFrames().addAll(kf1, kf2);
 		return delayTime;
 	}
-	private double animateSwitchTurn(SwitchTurnEvent e, Timeline timeline, double delayTime) {
+	private double animateSwitchTurn(TurnSwitched e, Timeline timeline, double delayTime) {
 		KeyFrame kf = new KeyFrame(Duration.millis(delayTime), ev -> {
 			statusView.updateTurn(e.getNewPlayerName());
 		});
@@ -174,19 +178,16 @@ public class GameAnimator {
 		timeline.getKeyFrames().add(kf);
 		return delayTime;
 	}
-	private double animateStop(StopEvent e, Timeline timeline, double delayTime) {
+	private double animateStop(MoveEnded e, Timeline timeline, double delayTime) {
 		KeyFrame kf = new KeyFrame(Duration.millis(delayTime), ev -> {
 			handView.reset();
 			handView.hide();
 			//boardView.syncBoard(game); statusView.syncScore(game); statusView.syncTurn(game);
 		});
 		timeline.getKeyFrames().add(kf);
-		if (e.getLastSquareId() == StopEvent.GAME_OVER) {
-			delayTime = animateGameOver(timeline, delayTime);
-		}
 		return delayTime;
 	}
-	private double animateGameOver(Timeline timeline, double delayTime) {
+	private double animateGameOver(GameEnded e, Timeline timeline, double delayTime) {
 		KeyFrame kf1 = new KeyFrame(Duration.millis(delayTime), ev -> {
 			msgOverlay.setTitle("Game Over");
 			msgOverlay.setContent("Calculating final scores...");

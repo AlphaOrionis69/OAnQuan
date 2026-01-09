@@ -2,12 +2,12 @@ package model.events;
 
 import model.players.PlayerSide;
 
-public class CaptureEvent extends GameEvent {
+public class StonesCaptured extends ModelChange {
 	private int squareId;
 	private int amountCaptured;
 	private PlayerSide side;
 	
-	public CaptureEvent(int squareId, int amountCaptured, PlayerSide side) {
+	public StonesCaptured(int squareId, int amountCaptured, PlayerSide side) {
 		this.squareId = squareId;
 		this.amountCaptured = amountCaptured;
 		this.side = side;

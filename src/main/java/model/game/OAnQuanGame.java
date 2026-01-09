@@ -10,6 +10,9 @@ import model.players.PlayerSide;
 import model.rules.GameRule;
 import model.rules.StandardRule;
 
+/*
+ * Changing to List<Player> now is still hard to expand to 3-4 players game, since we also need to modify board, possible player sides, rule, ...
+ */
 public class OAnQuanGame {
 	private Board board;
 	private Player player1;
@@ -17,17 +20,17 @@ public class OAnQuanGame {
 	private Player currentPlayer;
 	private GameRule rule;
 	private boolean isGameOver;
-	private int penalty = 0; 
-	
+	private int penalty = 0; // > 0 => player2 need to pay stone back
+	private static final int AMOUNT_DISTRIBUTED_PER_SQUARE = 1;
 	public OAnQuanGame() {
-		startNewGame("Player 1", "Player 2");
+		startNewGame();
 	}
 	
-	private void startNewGame(String p1Name, String p2Name) {
+	private void startNewGame() {
 		board = new Board();
 		rule = new StandardRule();
-		player1 = new Player(p1Name, PlayerSide.BOTTOM);
-		player2 = new Player(p2Name, PlayerSide.TOP);
+		player1 = new Player("Player 1", PlayerSide.BOTTOM);
+		player2 = new Player("Player 2", PlayerSide.TOP);
 		player1.resetScore();
 		player2.resetScore();
 		currentPlayer = player1;
@@ -38,22 +41,17 @@ public class OAnQuanGame {
 	
 	private void endGame() {
 		if (!isGameOver) return;
-		player1.addScore(penalty);
-		player2.decreaseScore(penalty);
+		player1.addScore(penalty); player1.addScore(board.pickUpStonesOnSide(player1.getSide()));
+		player2.decreaseScore(penalty); player2.addScore(board.pickUpStonesOnSide(player2.getSide()));
 		penalty = 0;
-		for (int i = PlayerSide.BOTTOM.start(); i <= PlayerSide.BOTTOM.end(); i++) player1.addScore(board.getSquare(i).pickUpStones());
-		for (int i = PlayerSide.TOP.start(); i <= PlayerSide.TOP.end(); i++) player2.addScore(board.getSquare(i).pickUpStones());
 	}
 	
-	private List<GameEvent> checkAndDistribute() {
+	private List<ModelChange> checkAndDistribute() {
 		if (isGameOver) return new ArrayList<>();
 		
-		int startIdx = currentPlayer.getSide().start();
-		int endIdx = currentPlayer.getSide().end();
-		
-		List<GameEvent> events = new ArrayList<>();
+		List<ModelChange> events = new ArrayList<>();
 		if (board.isSideEmpty(currentPlayer.getSide())) {
-			int stonesNeeded = 5;
+			int stonesNeeded = (currentPlayer.getSide().end() - currentPlayer.getSide().start() + 1)*AMOUNT_DISTRIBUTED_PER_SQUARE;
 			boolean isLending = false;
 			int amountLent = 0;
 			if (currentPlayer.getScore() >= stonesNeeded) {
@@ -71,30 +69,25 @@ public class OAnQuanGame {
 				currentPlayer.resetScore();
 			}
 			
-			events.add(new DistributeEvent(currentPlayer.getSide(), currentPlayer.getName(), isLending, amountLent, 1));
+			events.add(new SideRefilled(currentPlayer.getSide(), currentPlayer.getName(), isLending, amountLent, AMOUNT_DISTRIBUTED_PER_SQUARE));
 			
-			for (int i = startIdx; i <= endIdx; i++) {
-				board.getSquare(i).addStones(1);
-			}
+			board.addStonesOnSide(AMOUNT_DISTRIBUTED_PER_SQUARE, currentPlayer.getSide());
 		}
 		return events;
 	}
 	
-	public List<GameEvent> move(Move move) {
-		if (!rule.isValidMove(board, move.getSquareId(), currentPlayer.getSide())) return null;
+	public List<ModelChange> move(Move move) {
+		if (!rule.isValidMove(board, move.getSquareId(), currentPlayer.getSide()) || move.getDirection() == null) return null;
 		
-		List<GameEvent> events = new ArrayList<>();
+		List<ModelChange> events = new ArrayList<>();
 		
 		events.addAll(performMoveLogic(move.getSquareId(), move.getDirection()));
 		
-		if (currentPlayer == player1) currentPlayer = player2;
-		else currentPlayer = player1;
-		
-		events.add(new SwitchTurnEvent(currentPlayer.getName()));
+		events.addAll(switchTurn());
 		
 		if (rule.isGameOver(this)) {
 			isGameOver = true;
-			events.add(new StopEvent(StopEvent.GAME_OVER));
+			events.add(new GameEnded());
 			endGame();
 			return events;
 		}
@@ -104,31 +97,31 @@ public class OAnQuanGame {
 		return events;
 	}
 	
-	private List<GameEvent> performMoveLogic(int startId, Direction direction) {
-		List<GameEvent> events = new ArrayList<>();
+	private List<ModelChange> performMoveLogic(int startId, Direction direction) {
+		List<ModelChange> events = new ArrayList<>();
 		int currentIdx = startId;
 		
 		int hand = board.getSquare(startId).pickUpStones();
-		events.add(new PickUpEvent(currentIdx, hand));
+		events.add(new StonesPickedUp(currentIdx, hand));
 		
 		while (hand > 0) {
 			currentIdx = board.getNextIdx(currentIdx, direction);
 			board.getSquare(currentIdx).addStones(1);
 			hand--;
-			events.add(new DropEvent(currentIdx, 1));
+			events.add(new StonesDropped(currentIdx, 1));
 			
 			if (hand == 0) {
 				int nextIdx = board.getNextIdx(currentIdx, direction);
 				Square nextSquare = board.getSquare(nextIdx);
 				
 				if (nextSquare instanceof MandarinSquare) {
-					events.add(new StopEvent(currentIdx));
+					events.add(new MoveEnded(currentIdx));
 					return events;
 				}
 				if (!nextSquare.isEmpty()) {		
 					hand = nextSquare.pickUpStones();
 					currentIdx = nextIdx;
-					events.add(new PickUpEvent(currentIdx, hand));
+					events.add(new StonesPickedUp(currentIdx, hand));
 					
 				} else {
 					
@@ -142,7 +135,7 @@ public class OAnQuanGame {
 						} else {
 							int captured = targetSquare.pickUpStones();
 							currentPlayer.addScore(captured);
-							events.add(new CaptureEvent(targetIdx, captured, currentPlayer.getSide()));
+							events.add(new StonesCaptured(targetIdx, captured, currentPlayer.getSide()));
 							
 							int checkIdx = board.getNextIdx(targetIdx, direction);
 							if (board.getSquare(checkIdx) instanceof MandarinSquare) break;
@@ -150,14 +143,18 @@ public class OAnQuanGame {
 							emptyIdx = checkIdx;
 						}
 					}
-					events.add(new StopEvent(board.getNextIdx(emptyIdx, direction.opposite())));
+					events.add(new MoveEnded(board.getNextIdx(emptyIdx, direction.opposite())));
 					return events;
 				}
 			}
 		}
 		return events;
 	}
-	
+	private List<ModelChange> switchTurn() {
+		currentPlayer = currentPlayer == player1 ? player2 : player1;
+		List<ModelChange> output = new ArrayList<>(); output.add(new TurnSwitched(currentPlayer.getName()));
+		return output;
+	}
 	public Board getBoard() { return board; }
 	public Player getPlayer1() { return player1; }
 	public Player getPlayer2() { return player2; }

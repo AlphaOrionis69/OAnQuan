@@ -3,7 +3,7 @@ package model.test;
 import java.util.List;
 import java.util.Scanner;
 
-import model.events.GameEvent;
+import model.events.ModelChange;
 import model.game.Direction;
 import model.game.Move;
 import model.game.OAnQuanGame;
@@ -32,7 +32,7 @@ public class GameTest {
 						System.out.println("Invalid direction");
 						continue;
 					}
-					List<GameEvent> events = game.move(move);
+					List<ModelChange> events = game.move(move);
 					if (events == null) {
 						System.out.println("Wrong move"); continue;
 					}

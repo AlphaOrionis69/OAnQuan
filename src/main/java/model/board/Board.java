@@ -57,6 +57,18 @@ public class Board {
 		}
 		return true;
 	}
+	public int pickUpStonesOnSide(PlayerSide side) {
+		int picked = 0;
+		for (int i = side.start(); i <= side.end(); i++) {
+			picked += getSquare(i).pickUpStones();
+		}
+		return picked;
+	}
+	public void addStonesOnSide(int amountPerSquare, PlayerSide side) {
+		for (int i = side.start(); i <= side.end(); i++) {
+			getSquare(i).addStones(amountPerSquare);
+		}
+	}
 	public List<Square> getSquares() {
 		return squares;
 	}
