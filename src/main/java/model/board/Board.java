@@ -7,7 +7,7 @@ import model.game.Direction;
 import model.players.PlayerSide;
 
 public class Board {
-	private List<Square> squares;
+	private final List<Square> squares;
 	public static final int TOTAL_SQUARES = 12;
 	public static final int LEFT_MANDARIN_ID = 11;
 	public static final int RIGHT_MANDARIN_ID = 5;
@@ -53,6 +53,10 @@ public class Board {
 	public boolean isSideEmpty(PlayerSide side) {
 		int startIdx = side.start(), endIdx = side.end();
 		for (int i = startIdx; i <= endIdx; i++) {
+			if (getSquare(i) == null) {
+				System.out.println("Board: Side is not compatible with board");
+				continue;
+			}
 			if (!squares.get(i).isEmpty()) return false;
 		}
 		return true;
@@ -60,37 +64,45 @@ public class Board {
 	public int pickUpStonesOnSide(PlayerSide side) {
 		int picked = 0;
 		for (int i = side.start(); i <= side.end(); i++) {
+			if (getSquare(i) == null) {
+				System.out.println("Board: Side is not compatible with board");
+				continue;
+			}
 			picked += getSquare(i).pickUpStones();
 		}
 		return picked;
 	}
 	public void addStonesOnSide(int amountPerSquare, PlayerSide side) {
 		for (int i = side.start(); i <= side.end(); i++) {
+			if (getSquare(i) == null) {
+				System.out.println("Board: Side is not compatible with board");
+				continue;
+			}
 			getSquare(i).addStones(amountPerSquare);
 		}
 	}
 	public List<Square> getSquares() {
-		return squares;
+		return new ArrayList<>(squares);
 	}
 
 	@Override
 	public String toString() {
-		StringBuffer output = new StringBuffer();
-		output.append(new String("====================================================\n"));
-		output.append(new String("	 "));
+		StringBuilder output = new StringBuilder();
+		output.append("====================================================\n");
+		output.append("	 ");
 		for (int i = PlayerSide.TOP.end(); i >= PlayerSide.TOP.start(); i--) {
 			output.append(getSquare(i).toString());
 			if (i != PlayerSide.TOP.start()) output.append(" - ");
 			else output.append("\n");
 		}
-		output.append(new String("  " + getSquare(11).toString() + "							 " + getSquare(5).toString()) + "\n");
-		output.append(new String("	 "));
+		output.append("  " + getSquare(11).toString() + "							 " + getSquare(5).toString() + "\n");
+		output.append("	 ");
 		for (int i = PlayerSide.BOTTOM.start(); i <= PlayerSide.BOTTOM.end(); i++) {
 			output.append(getSquare(i).toString());
 			if (i != PlayerSide.BOTTOM.end()) output.append(" - ");
 			else output.append("\n");
 		}
-		output.append(new String("====================================================\n"));
+		output.append("====================================================\n");
 		return output.toString();
 	}
 }

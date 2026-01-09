@@ -2,7 +2,7 @@
 package model.board;
 
 public abstract class Square {
-	private int id;
+	private final int id;
 	private int smallStones;
 	private int bigStones;
 	public Square(int id, int smallStones, int bigStones) {

@@ -30,8 +30,7 @@ public class StandardRule implements GameRule {
 	@Override
 	public boolean isGameOver(OAnQuanGame game) {
 		boolean firstScenario = game.getBoard().areMandarinsEmpty();
-		boolean secondScenario = (game.getPlayer1().getScore() + game.getPlayer2().getScore() < 5) 
-				&& game.getBoard().isSideEmpty(game.getCurrentPlayer().getSide());
+		boolean secondScenario = (game.getTotalScore() < 5) && game.getBoard().isSideEmpty(game.getCurrentPlayer().getSide());
 		return firstScenario || secondScenario;
 	}
 }

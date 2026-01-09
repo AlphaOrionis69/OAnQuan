@@ -77,7 +77,7 @@ public class OAnQuanGame {
 	}
 	
 	public List<ModelChange> move(Move move) {
-		if (!rule.isValidMove(board, move.getSquareId(), currentPlayer.getSide()) || move.getDirection() == null) return null;
+		if (!rule.isValidMove(board, move.getSquareId(), currentPlayer.getSide())) return null;
 		
 		List<ModelChange> events = new ArrayList<>();
 		
@@ -124,30 +124,33 @@ public class OAnQuanGame {
 					events.add(new StonesPickedUp(currentIdx, hand));
 					
 				} else {
+					events.addAll(handleCapture(nextIdx, direction));
 					
-					int emptyIdx = nextIdx;
-					while (true) {
-						int targetIdx = board.getNextIdx(emptyIdx, direction);
-						Square targetSquare = board.getSquare(targetIdx);
-						
-						if (targetSquare.isEmpty()) {
-							break;
-						} else {
-							int captured = targetSquare.pickUpStones();
-							currentPlayer.addScore(captured);
-							events.add(new StonesCaptured(targetIdx, captured, currentPlayer.getSide()));
-							
-							int checkIdx = board.getNextIdx(targetIdx, direction);
-							if (board.getSquare(checkIdx) instanceof MandarinSquare) break;
-							if (!board.getSquare(checkIdx).isEmpty()) break;
-							emptyIdx = checkIdx;
-						}
-					}
-					events.add(new MoveEnded(board.getNextIdx(emptyIdx, direction.opposite())));
-					return events;
 				}
 			}
 		}
+		return events;
+	}
+	private List<ModelChange> handleCapture(int emptyIdx, Direction direction) {
+		List<ModelChange> events = new ArrayList<>();
+		while (true) {
+			int targetIdx = board.getNextIdx(emptyIdx, direction);
+			Square targetSquare = board.getSquare(targetIdx);
+			
+			if (targetSquare.isEmpty()) {
+				break;
+			} else {
+				int captured = targetSquare.pickUpStones();
+				currentPlayer.addScore(captured);
+				events.add(new StonesCaptured(targetIdx, captured, currentPlayer.getSide()));
+				
+				int checkIdx = board.getNextIdx(targetIdx, direction);
+				if (board.getSquare(checkIdx) instanceof MandarinSquare) break;
+				if (!board.getSquare(checkIdx).isEmpty()) break;
+				emptyIdx = checkIdx;
+			}
+		}
+		events.add(new MoveEnded(board.getNextIdx(emptyIdx, direction.opposite())));
 		return events;
 	}
 	private List<ModelChange> switchTurn() {
@@ -155,6 +158,7 @@ public class OAnQuanGame {
 		List<ModelChange> output = new ArrayList<>(); output.add(new TurnSwitched(currentPlayer.getName()));
 		return output;
 	}
+	public int getTotalScore() { return player1.getScore() + player2.getScore(); }
 	public Board getBoard() { return board; }
 	public Player getPlayer1() { return player1; }
 	public Player getPlayer2() { return player2; }

@@ -1,9 +1,9 @@
 package model.players;
 
 public class Player {
-	private String name;
+	private final String name;
 	private int score;
-	private PlayerSide side;
+	private final PlayerSide side;
 	
 	public Player(String name, PlayerSide side) {
 		this.name = name;
