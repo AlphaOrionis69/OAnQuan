@@ -4,7 +4,7 @@
 
 **Ô Ăn Quan** is a Java implementation of the traditional Vietnamese board game. The project features an interactive GUI that allows players to play the game directly on a computer.
 
-The game is implemented using **Object-Oriented Programming (OOP)** principles, with components representing the game board, pieces, players, and game rules. Through the GUI, players can select valid positions, make moves, distribute pieces, capture pieces, and take turns while the board and game status are updated in real time.
+The game is implemented using **OOP** principles, with components representing the game board, stones, players, and game rules. Through the GUI, players can select valid positions, make moves, distribute stones, capture stones, and take turns while the board and game status are updated in real time.
 
 ## Installation
 
